@@ -12,15 +12,11 @@ contract ProofBuilderTest is AQueryProofExecutor {
 
     error Mismatch(uint256 iteration, uint256 original, uint256 lib);
 
-    function init(address registrationSMT_) external initializer {
-        __AQueryProofExecutor_init(registrationSMT_, address(0));
+    function init(address verifier_) external initializer {
+        __AQueryProofExecutor_init(verifier_);
     }
 
-    function _buildPublicSignals(
-        bytes32,
-        uint256,
-        bytes memory
-    ) internal pure override returns (uint256) {
+    function _buildPublicSignals(uint256, bytes memory) internal pure override returns (uint256) {
         return 0;
     }
 
@@ -126,7 +122,8 @@ contract ProofBuilderTest is AQueryProofExecutor {
         _compareArrays(originalPubSignals, libPubSignals);
     }
 
-    function testEquivalencePart5_IdStateRoot(bytes32 idStateRoot_) external view {
+    // NOTE: testEquivalencePart5_IdStateRoot is commented out because withIdStateRoot is disabled
+    /*function testEquivalencePart5_IdStateRoot(bytes32 idStateRoot_) external view {
         uint256 nullifier = 1;
         uint256 selector = 2;
 
@@ -141,7 +138,7 @@ contract ProofBuilderTest is AQueryProofExecutor {
 
         uint256[] memory libPubSignals = PublicSignalsBuilder.buildAsUintArray(builder);
         _compareArrays(originalPubSignals, libPubSignals);
-    }
+    }*/
 
     function testEquivalencePart6_CurrentDate(uint256 currentDate_) external view {
         uint256 nullifier = 1;

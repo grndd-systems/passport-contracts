@@ -141,21 +141,18 @@ library PublicSignalsBuilder {
     }
 
     /**
-     * @notice Sets the idStateRoot (index 11) in the public signals array.
-     * @dev Root of the identity registration Merkle tree.
-     * @param dataPointer_ Pointer to the public signals array in memory.
-     * @param idStateRoot_ The Merkle root value.
-     */
-    function withIdStateRoot(uint256 dataPointer_, bytes32 idStateRoot_) internal view {
-        AQueryProofExecutor.AExecutorStorage storage $ = getABuilderStorage();
-
-        if (!IPoseidonSMT($.registrationSMT).isRootValid(idStateRoot_)) {
-            revert InvalidRegistrationRoot($.registrationSMT, idStateRoot_);
-        }
-
+   * @notice Sets the pkIdentityHash (index 11) in the public signals array.
+   * @dev Identity hash that replaces the SMT root in the new circuit 
+  version.
+   *      This is the activeIdentity value bound to the passport.
+   * @param dataPointer_ Pointer to the public signals array in memory.
+   * @param pkIdentityHash_ The identity hash value (bytes32 cast to 
+  uint256).
+   */
+    function withPkIdentityHash(uint256 dataPointer_, uint256 pkIdentityHash_) internal pure {
         assembly {
             // 32 + 11 * 32 = 32 + 352 = 384
-            mstore(add(dataPointer_, 384), idStateRoot_)
+            mstore(add(dataPointer_, 384), pkIdentityHash_)
         }
     }
 

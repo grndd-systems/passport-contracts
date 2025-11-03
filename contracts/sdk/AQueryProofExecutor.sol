@@ -22,7 +22,7 @@ abstract contract AQueryProofExecutor is Initializable {
         0x3844f6f56a171c93056bdfb3ce2525778ef493f53ef90b0283983867a69d2128;
 
     struct AExecutorStorage {
-        address registrationSMT;
+        //address registrationSMT;
         address verifier;
     }
 
@@ -36,13 +36,9 @@ abstract contract AQueryProofExecutor is Initializable {
     error InvalidNoirProof(bytes32[] pubSignals, bytes zkPoints);
     error InvalidCircomProof(uint256[] pubSignals, ProofPoints zkPoints);
 
-    function __AQueryProofExecutor_init(
-        address registrationSMT_,
-        address verifier
-    ) internal onlyInitializing {
+    function __AQueryProofExecutor_init(address verifier) internal onlyInitializing {
         AExecutorStorage storage $ = _getABuilderStorage();
 
-        $.registrationSMT = registrationSMT_;
         $.verifier = verifier;
     }
 
@@ -53,11 +49,7 @@ abstract contract AQueryProofExecutor is Initializable {
      * @param userPayload_ Encoded application-specific data passed from the external `execute` or `executeNoir` call.
      */
     // solhint-disable-next-line no-empty-blocks
-    function _beforeVerify(
-        bytes32 registrationRoot_,
-        uint256 currentDate_,
-        bytes memory userPayload_
-    ) internal virtual {}
+    function _beforeVerify(uint256 currentDate_, bytes memory userPayload_) internal virtual {}
 
     /**
      * @notice Hook executed after a `successful` ZK proof verification.
@@ -66,11 +58,7 @@ abstract contract AQueryProofExecutor is Initializable {
      * @param userPayload_ Encoded application-specific data passed from the external `execute` or `executeNoir` call.
      */
     // solhint-disable-next-line no-empty-blocks
-    function _afterVerify(
-        bytes32 registrationRoot_,
-        uint256 currentDate_,
-        bytes memory userPayload_
-    ) internal virtual {}
+    function _afterVerify(uint256 currentDate_, bytes memory userPayload_) internal virtual {}
 
     /**
      * @notice Abstract function responsible for constructing the public signals array for the ZK proof.
@@ -80,81 +68,77 @@ abstract contract AQueryProofExecutor is Initializable {
      * @return builder_ A `uint256` representing the memory pointer to the constructed public signals array.
      */
     function _buildPublicSignals(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_
     ) internal view virtual returns (uint256 builder_);
 
     /**
      * @notice Executes the full ZK proof verification workflow for a Circom (Groth16) proof.
-     * @param registrationRoot_ The root of the identity SMT against which the proof was generated.
      * @param currentDate_ The current date (encoded as `yyMMdd`) to be included in the public signals.
      * @param userPayload_ Encoded application-specific data to be used by hooks and the signal builder.
      * @param zkPoints_ The Circom Groth16 proof points (`ProofPoints` struct).
      */
     function execute(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_,
         ProofPoints memory zkPoints_
     ) external {
-        _beforeVerify(registrationRoot_, currentDate_, userPayload_);
+        _beforeVerify(currentDate_, userPayload_);
 
-        uint256 builder_ = _buildPublicSignals(registrationRoot_, currentDate_, userPayload_);
-        builder_.withIdStateRoot(registrationRoot_);
+        uint256 builder_ = _buildPublicSignals(currentDate_, userPayload_);
+        //builder_.withIdStateRoot(registrationRoot_);
 
         uint256[] memory publicSignals_ = PublicSignalsBuilder.buildAsUintArray(builder_);
 
-        if (!_verifyCircomProof(zkPoints_, publicSignals_)) {
+        bool proofValid = _verifyCircomProof(zkPoints_, publicSignals_);
+
+        if (!proofValid) {
             revert InvalidCircomProof(publicSignals_, zkPoints_);
         }
 
-        _afterVerify(registrationRoot_, currentDate_, userPayload_);
+        _afterVerify(currentDate_, userPayload_);
     }
 
     /**
      * @notice Executes the full ZK proof verification workflow for a Noir proof.
-     * @param registrationRoot_ The root of the identity SMT against which the proof was generated.
      * @param currentDate_ The current date (encoded as `yyMMdd`) to be included in the public signals.
      * @param userPayload_ Encoded application-specific data to be used by hooks and the signal builder.
      * @param zkPoints_ The raw bytes of the Noir proof.
      */
     function executeNoir(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_,
         bytes memory zkPoints_
     ) external {
-        _beforeVerify(registrationRoot_, currentDate_, userPayload_);
+        _beforeVerify(currentDate_, userPayload_);
 
-        uint256 builder_ = _buildPublicSignals(registrationRoot_, currentDate_, userPayload_);
-        builder_.withIdStateRoot(registrationRoot_);
+        uint256 builder_ = _buildPublicSignals(currentDate_, userPayload_);
 
         bytes32[] memory publicSignals_ = PublicSignalsBuilder.buildAsBytesArray(builder_);
 
         AExecutorStorage storage $ = _getABuilderStorage();
 
-        if (!INoirVerifier($.verifier).verify(zkPoints_, publicSignals_)) {
+        bool proofValid = INoirVerifier($.verifier).verify(zkPoints_, publicSignals_);
+
+        if (!proofValid) {
             revert InvalidNoirProof(publicSignals_, zkPoints_);
         }
 
-        _afterVerify(registrationRoot_, currentDate_, userPayload_);
+        _afterVerify(currentDate_, userPayload_);
     }
 
     function getPublicSignals(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_
     ) public view virtual returns (bytes32[] memory publicSignals) {
-        uint256 builder_ = _buildPublicSignals(registrationRoot_, currentDate_, userPayload_);
-        builder_.withIdStateRoot(registrationRoot_);
+        uint256 builder_ = _buildPublicSignals(currentDate_, userPayload_);
 
         return PublicSignalsBuilder.buildAsBytesArray(builder_);
     }
 
-    function getRegistrationSMT() public view returns (address) {
+    /*function getRegistrationSMT() public view returns (address) {
         return _getABuilderStorage().registrationSMT;
-    }
+    }*/
 
     function getVerifier() public view returns (address) {
         return _getABuilderStorage().verifier;
@@ -186,9 +170,12 @@ abstract contract AQueryProofExecutor is Initializable {
             )
         );
 
-        if (!success_) revert FailedToCallVerifyProof();
+        if (!success_) {
+            revert FailedToCallVerifyProof();
+        }
 
-        return abi.decode(returnData_, (bool));
+        bool result = abi.decode(returnData_, (bool));
+        return result;
     }
 
     /**
