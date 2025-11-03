@@ -27,7 +27,6 @@ library PublicSignalsBuilder {
         0x3844f6f56a171c93056bdfb3ce2525778ef493f53ef90b0283983867a69d2128;
 
     error InvalidDate(uint256 parsedTimestamp, uint256 currentTimestamp);
-    error InvalidRegistrationRoot(address registrationSMT, bytes32 registrationRoot);
 
     function newPublicSignalsBuilder(
         uint256 selector_,

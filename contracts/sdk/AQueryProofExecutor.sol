@@ -23,7 +23,6 @@ abstract contract AQueryProofExecutor is Initializable {
         0x3844f6f56a171c93056bdfb3ce2525778ef493f53ef90b0283983867a69d2128;
 
     struct AExecutorStorage {
-        //address registrationSMT;
         address verifier;
     }
 

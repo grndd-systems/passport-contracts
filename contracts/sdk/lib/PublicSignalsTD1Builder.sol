@@ -3,8 +3,6 @@ pragma solidity ^0.8.22;
 
 import {AQueryProofExecutor} from "../AQueryProofExecutor.sol";
 
-import {IPoseidonSMT} from "../../interfaces/state/IPoseidonSMT.sol";
-
 import {Date2Time} from "../../utils/Date2Time.sol";
 
 /**
@@ -22,12 +20,7 @@ library PublicSignalsTD1Builder {
     uint256 public constant PROOF_SIGNALS_COUNT = 24;
     uint256 public constant ZERO_DATE = 0x303030303030;
 
-    // bytes32(uint256(keccak256("rarimo.contract.AQueryProofExecutor")) - 1)
-    bytes32 private constant A_BUILDER_STORAGE =
-        0x3844f6f56a171c93056bdfb3ce2525778ef493f53ef90b0283983867a69d2128;
-
     error InvalidDate(uint256 parsedTimestamp, uint256 currentTimestamp);
-    error InvalidRegistrationRoot(address registrationSMT, bytes32 registrationRoot);
 
     function newPublicSignalsBuilder(
         uint256 selector_,
@@ -194,21 +187,16 @@ library PublicSignalsTD1Builder {
     }
 
     /**
-     * @notice Sets the idStateRoot (index 12) in the public signals array.
-     * @dev Root of the identity registration Merkle tree.
+     * @notice Sets the pkIdentityHash (index 11) in the public signals array.
+     * @dev Identity hash that replaces the SMT root in the new circuit version.
+     *      This is the activeIdentity value bound to the passport.
      * @param dataPointer_ Pointer to the public signals array in memory.
-     * @param idStateRoot_ The Merkle root value.
+     * @param pkIdentityHash_ The identity hash value (bytes32 cast to uint256).
      */
-    function withIdStateRoot(uint256 dataPointer_, bytes32 idStateRoot_) internal view {
-        AQueryProofExecutor.AExecutorStorage storage $ = getABuilderStorage();
-
-        if (!IPoseidonSMT($.registrationSMT).isRootValid(idStateRoot_)) {
-            revert InvalidRegistrationRoot($.registrationSMT, idStateRoot_);
-        }
-
+    function withPkIdentityHash(uint256 dataPointer_, uint256 pkIdentityHash_) internal pure {
         assembly {
-            // 32 + 12 * 32 = 416
-            mstore(add(dataPointer_, 416), idStateRoot_)
+            // 32 + 12 * 32 = 32 + 384 = 416
+            mstore(add(dataPointer_, 416), pkIdentityHash_)
         }
     }
 
@@ -385,18 +373,5 @@ library PublicSignalsTD1Builder {
         return
             parsedTimestamp_ > block.timestamp - timeBound_ &&
             parsedTimestamp_ < block.timestamp + timeBound_;
-    }
-
-    /**
-     * @notice Retrieves the AQueryProofExecutor.ABuilderStorage storage reference.
-     */
-    function getABuilderStorage()
-        private
-        pure
-        returns (AQueryProofExecutor.AExecutorStorage storage $)
-    {
-        assembly {
-            $.slot := A_BUILDER_STORAGE
-        }
     }
 }
