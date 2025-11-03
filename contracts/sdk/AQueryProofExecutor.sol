@@ -78,7 +78,6 @@ abstract contract AQueryProofExecutor is Initializable {
      * @dev Implement in inheritors to construct TD1 signals using PublicSignalsTD1Builder helpers.
      */
     function _buildPublicSignalsTD1(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_
     ) internal view virtual returns (uint256 builder_);
@@ -142,15 +141,13 @@ abstract contract AQueryProofExecutor is Initializable {
      * @notice Executes TD1 ZK proof verification workflow for a Circom (Groth16) proof.
      */
     function executeTD1(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_,
         ProofPoints memory zkPoints_
     ) external {
-        _beforeVerify(registrationRoot_, currentDate_, userPayload_);
+        _beforeVerify(currentDate_, userPayload_);
 
-        uint256 builder_ = _buildPublicSignalsTD1(registrationRoot_, currentDate_, userPayload_);
-        PublicSignalsTD1Builder.withIdStateRoot(builder_, registrationRoot_);
+        uint256 builder_ = _buildPublicSignalsTD1(currentDate_, userPayload_);
 
         uint256[] memory publicSignals_ = PublicSignalsTD1Builder.buildAsUintArray(builder_);
 
@@ -158,22 +155,20 @@ abstract contract AQueryProofExecutor is Initializable {
             revert InvalidCircomProof(publicSignals_, zkPoints_);
         }
 
-        _afterVerify(registrationRoot_, currentDate_, userPayload_);
+        _afterVerify(currentDate_, userPayload_);
     }
 
     /**
      * @notice Executes TD1 ZK proof verification workflow for a Noir proof.
      */
     function executeTD1Noir(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_,
         bytes memory zkPoints_
     ) external {
-        _beforeVerify(registrationRoot_, currentDate_, userPayload_);
+        _beforeVerify(currentDate_, userPayload_);
 
-        uint256 builder_ = _buildPublicSignalsTD1(registrationRoot_, currentDate_, userPayload_);
-        PublicSignalsTD1Builder.withIdStateRoot(builder_, registrationRoot_);
+        uint256 builder_ = _buildPublicSignalsTD1(currentDate_, userPayload_);
 
         bytes32[] memory publicSignals_ = PublicSignalsTD1Builder.buildAsBytesArray(builder_);
 
@@ -183,16 +178,14 @@ abstract contract AQueryProofExecutor is Initializable {
             revert InvalidNoirProof(publicSignals_, zkPoints_);
         }
 
-        _afterVerify(registrationRoot_, currentDate_, userPayload_);
+        _afterVerify(currentDate_, userPayload_);
     }
 
     function getPublicSignalsTD1(
-        bytes32 registrationRoot_,
         uint256 currentDate_,
         bytes memory userPayload_
     ) public view returns (bytes32[] memory publicSignals) {
-        uint256 builder_ = _buildPublicSignalsTD1(registrationRoot_, currentDate_, userPayload_);
-        PublicSignalsTD1Builder.withIdStateRoot(builder_, registrationRoot_);
+        uint256 builder_ = _buildPublicSignalsTD1(currentDate_, userPayload_);
 
         return PublicSignalsTD1Builder.buildAsBytesArray(builder_);
     }

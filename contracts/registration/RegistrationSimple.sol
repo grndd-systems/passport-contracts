@@ -118,12 +118,7 @@ contract RegistrationSimple is Initializable, UUPSUpgradeable {
             zkPoints_
         );
 
-        stateKeeper.addBond(
-            passport_.publicKey,
-            passport_.passportHash,
-            bytes32(identityKey_),
-            passport_.dgCommit
-        );
+        stateKeeper.addBond(passport_.publicKey, passport_.passportHash, bytes32(identityKey_));
     }
 
     function updateSignerList(bytes calldata data_) external {
