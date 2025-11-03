@@ -79,13 +79,11 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
 
     function __StateKeeper_init(
         address initialOwner_,
-        address registrationSmt_,
         address certificatesSmt_,
         bytes32 icaoMasterTreeMerkleRoot_
     ) external initializer {
         __AMultiOwnable_init();
 
-        registrationSmt = PoseidonSMT(registrationSmt_);
         certificatesSmt = PoseidonSMT(certificatesSmt_);
 
         icaoMasterTreeMerkleRoot = icaoMasterTreeMerkleRoot_;
@@ -140,8 +138,7 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
     function addBond(
         bytes32 passportKey_,
         bytes32 passportHash_,
-        bytes32 identityKey_,
-        uint256 dgCommit_
+        bytes32 identityKey_
     ) external virtual onlyRegistration {
         if (passportKey_ == bytes32(0)) {
             (passportHash_, passportKey_) = (passportKey_, passportHash_);
@@ -175,13 +172,6 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
         _identityInfo.activePassport = passportKey_;
         _identityInfo.issueTimestamp = uint64(block.timestamp);
 
-        uint256 index_ = PoseidonUnit2L.poseidon([uint256(passportKey_), uint256(identityKey_)]);
-        uint256 value_ = PoseidonUnit3L.poseidon(
-            [dgCommit_, _passportInfo.identityReissueCounter, uint64(block.timestamp)]
-        );
-
-        registrationSmt.add(bytes32(index_), bytes32(value_));
-
         emit BondAdded(passportKey_, identityKey_);
     }
 
@@ -207,11 +197,6 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
         _passportInfo.activeIdentity = REVOKED;
         _identityInfo.activePassport = REVOKED;
 
-        uint256 index_ = PoseidonUnit2L.poseidon([uint256(passportKey_), uint256(identityKey_)]);
-        uint256 value_ = PoseidonUnit1L.poseidon([uint256(REVOKED)]);
-
-        registrationSmt.update(bytes32(index_), bytes32(value_));
-
         emit BondRevoked(passportKey_, identityKey_);
     }
 
@@ -220,8 +205,7 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
      */
     function reissueBondIdentity(
         bytes32 passportKey_,
-        bytes32 identityKey_,
-        uint256 dgCommit_
+        bytes32 identityKey_
     ) external virtual onlyRegistration {
         PassportInfo storage _passportInfo = _passportInfos[passportKey_];
         IdentityInfo storage _identityInfo = _identityInfos[identityKey_];
@@ -237,13 +221,6 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
 
         _identityInfo.activePassport = bytes32(passportKey_);
         _identityInfo.issueTimestamp = uint64(block.timestamp);
-
-        uint256 index_ = PoseidonUnit2L.poseidon([uint256(passportKey_), uint256(identityKey_)]);
-        uint256 value_ = PoseidonUnit3L.poseidon(
-            [dgCommit_, _passportInfo.identityReissueCounter, uint64(block.timestamp)]
-        );
-
-        registrationSmt.add(bytes32(index_), bytes32(value_));
 
         emit BondIdentityReissued(passportKey_, identityKey_);
     }
