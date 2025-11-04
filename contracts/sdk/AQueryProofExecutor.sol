@@ -198,10 +198,6 @@ abstract contract AQueryProofExecutor is Initializable {
         return PublicSignalsBuilder.buildAsBytesArray(builder_);
     }
 
-    /*function getRegistrationSMT() public view returns (address) {
-        return _getABuilderStorage().registrationSMT;
-    }*/
-
     function getVerifier() public view returns (address) {
         return _getABuilderStorage().verifier;
     }

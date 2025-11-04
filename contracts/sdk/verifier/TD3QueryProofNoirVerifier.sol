@@ -1,237 +1,72 @@
-// Verification Key Hash: 53774c50aa1fa2855e77e6f9c877f743fd4db0e4fa46854ef53851ca3a7d83d1
+// Verification Key Hash: 376a88f8e3b7d63b385d04f0dcab59b42803f2f842de82350a617759d9e44146
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2022 Aztec
 pragma solidity >=0.8.4;
 
 library UltraVerificationKey {
-    function verificationKeyHash() internal pure returns (bytes32) {
-        return 0x53774c50aa1fa2855e77e6f9c877f743fd4db0e4fa46854ef53851ca3a7d83d1;
+    function verificationKeyHash() internal pure returns(bytes32) {
+        return 0x376a88f8e3b7d63b385d04f0dcab59b42803f2f842de82350a617759d9e44146;
     }
 
     function loadVerificationKey(uint256 _vk, uint256 _omegaInverseLoc) internal pure {
         assembly {
-            mstore(
-                add(_vk, 0x00),
-                0x0000000000000000000000000000000000000000000000000000000000010000
-            ) // vk.circuit_size
-            mstore(
-                add(_vk, 0x20),
-                0x0000000000000000000000000000000000000000000000000000000000000017
-            ) // vk.num_inputs
-            mstore(
-                add(_vk, 0x40),
-                0x00eeb2cb5981ed45649abebde081dcff16c8601de4347e7dd1628ba2daac43b7
-            ) // vk.work_root
-            mstore(
-                add(_vk, 0x60),
-                0x30641e0e92bebef818268d663bcad6dbcfd6c0149170f6d7d350b1b1fa6c1001
-            ) // vk.domain_inverse
-            mstore(
-                add(_vk, 0x80),
-                0x0e0bae65032ff51442bb5f0086f3055b72c306d97c3ac2177ea371585b3f878e
-            ) // vk.Q1.x
-            mstore(
-                add(_vk, 0xa0),
-                0x0231029486afd0847d3b815d0f754d6db56c8a70da026de7bb96a6cf2417e04f
-            ) // vk.Q1.y
-            mstore(
-                add(_vk, 0xc0),
-                0x244c45230892d88cf0465fe093b462136f5b0dc049fd2b141dcddcda934b2af8
-            ) // vk.Q2.x
-            mstore(
-                add(_vk, 0xe0),
-                0x1295df6917dbb2a46459ef6b1ab74c36bd0c43817dd4cd7a6ed288b4601913c0
-            ) // vk.Q2.y
-            mstore(
-                add(_vk, 0x100),
-                0x187ce22f735d8d88d5a02030882697f4c0c684c5cf1082bf3657fdefc28eb2e1
-            ) // vk.Q3.x
-            mstore(
-                add(_vk, 0x120),
-                0x170b5d07aadee0274d1b5bfb4ddf24ad60c020619347ca34b348ccc2b08dab1e
-            ) // vk.Q3.y
-            mstore(
-                add(_vk, 0x140),
-                0x2930e775143f63818cb23818e54f90bd50668939fe2647af9d449720474ca54a
-            ) // vk.Q4.x
-            mstore(
-                add(_vk, 0x160),
-                0x2cbbae8d9299836d2e82794418eab9bf814eb081eba00aa2fdf992d164b69978
-            ) // vk.Q4.y
-            mstore(
-                add(_vk, 0x180),
-                0x189ecf156d83d2c749f4f75ef8e008b5a3f604e58c643a86db35b54e3fb08d93
-            ) // vk.Q_M.x
-            mstore(
-                add(_vk, 0x1a0),
-                0x2de008518eddfcfb960b3da2a82a82238638b7d6d536d434635824d166122223
-            ) // vk.Q_M.y
-            mstore(
-                add(_vk, 0x1c0),
-                0x1dcf8d461f5e0bc819731f676d0430a3b99dd294861a2050f843df80dcfde326
-            ) // vk.Q_C.x
-            mstore(
-                add(_vk, 0x1e0),
-                0x2b9f77577b20a8b0d5b1a8b486556945bff62900ab51dfe9a9566e1d53e82dc3
-            ) // vk.Q_C.y
-            mstore(
-                add(_vk, 0x200),
-                0x013e7ef7f19c295262394bae20be08a807d0b465fb9f3d36c8f61b0c6cfbca08
-            ) // vk.Q_ARITHMETIC.x
-            mstore(
-                add(_vk, 0x220),
-                0x16b269c759637ff2236813733dcdffedb6724c350582b6a0db9acab119150fa5
-            ) // vk.Q_ARITHMETIC.y
-            mstore(
-                add(_vk, 0x240),
-                0x130ce571e9656d12d2e18da695a094b593b3032e9fc30b793cdcdc671129c12d
-            ) // vk.QSORT.x
-            mstore(
-                add(_vk, 0x260),
-                0x2d725264e0f82557d48b2c243ecbd47b0ba3dca122bcdb54cabca28e0d91b7bc
-            ) // vk.QSORT.y
-            mstore(
-                add(_vk, 0x280),
-                0x21245d6c0a4d2ff12b21a825f39f30e8f8cf9b259448d111183e975828539576
-            ) // vk.Q_ELLIPTIC.x
-            mstore(
-                add(_vk, 0x2a0),
-                0x16a409532c8a1693536e93b6ce9920bfc2e6796e8dfe404675a0cdf6ee77ee7a
-            ) // vk.Q_ELLIPTIC.y
-            mstore(
-                add(_vk, 0x2c0),
-                0x2f213c7a4c064a63d6a07366df0ea85aef9ad2125a188c3e656f95471e416a0a
-            ) // vk.Q_AUX.x
-            mstore(
-                add(_vk, 0x2e0),
-                0x067a270bed55e72ffb3cfa39af3e5b8bcb4961d72bb301978af13c4ddc73e5df
-            ) // vk.Q_AUX.y
-            mstore(
-                add(_vk, 0x300),
-                0x05c1e8bc697a5fa3eeadd14b666f16696ddaf45ff72366d44b2c2cb64743bd47
-            ) // vk.SIGMA1.x
-            mstore(
-                add(_vk, 0x320),
-                0x2d41235e37a85b9672547931e61ce9ee330b06f218f633cba1375ee28114050b
-            ) // vk.SIGMA1.y
-            mstore(
-                add(_vk, 0x340),
-                0x0799797f5997d8844392ce5bd3e90f7cce28d1f3781db4201b633daea3f13fd6
-            ) // vk.SIGMA2.x
-            mstore(
-                add(_vk, 0x360),
-                0x11c5a479b29ca8aa826dce1c9f856f46b86a9cc97f98f1c7eddaf13b93647a12
-            ) // vk.SIGMA2.y
-            mstore(
-                add(_vk, 0x380),
-                0x03aa0347e938d25b8622beaf7a1946d22712d544d38febffff37aa763c56edc4
-            ) // vk.SIGMA3.x
-            mstore(
-                add(_vk, 0x3a0),
-                0x0f07a109b1acfd0368d648a20274611ac96de3614a56dcc234243e5b8e309256
-            ) // vk.SIGMA3.y
-            mstore(
-                add(_vk, 0x3c0),
-                0x2a1632a7f3c5c459e04a3704370b0e8201a6cfc22568ec5bf4d60ab81a094903
-            ) // vk.SIGMA4.x
-            mstore(
-                add(_vk, 0x3e0),
-                0x05afdeb870569ea1383c0544fda859e26fe8fc30ff2e56739ff4be5c70a00f22
-            ) // vk.SIGMA4.y
-            mstore(
-                add(_vk, 0x400),
-                0x187e7e35d0116a6672b2670f83bf4f3257d2c5f95ca990943deb07f98e573f87
-            ) // vk.TABLE1.x
-            mstore(
-                add(_vk, 0x420),
-                0x01d2b37054e35124153a8d470749d60e55759ae7aa52dd33c253d7f49f31b768
-            ) // vk.TABLE1.y
-            mstore(
-                add(_vk, 0x440),
-                0x2043ac05206a2f580ed0a148adfaa26ef5516184126c9e67a8741e133af924cc
-            ) // vk.TABLE2.x
-            mstore(
-                add(_vk, 0x460),
-                0x2bf9b2f5f18eac63843fec205836e0e4cf77146523cb2b703ec9fd6f505b2a32
-            ) // vk.TABLE2.y
-            mstore(
-                add(_vk, 0x480),
-                0x01239374280500d61d963adeadc1cfef87ce7f19adb4f4f90c79f63d96468023
-            ) // vk.TABLE3.x
-            mstore(
-                add(_vk, 0x4a0),
-                0x0290f83ff91799507e620788f5072a71dd03df9c5605f9594bec63d1763724ca
-            ) // vk.TABLE3.y
-            mstore(
-                add(_vk, 0x4c0),
-                0x089ec02dcc6b3216cf9b4418e0827ad4b07d55d3ffa2b21da0743809bae4c2c8
-            ) // vk.TABLE4.x
-            mstore(
-                add(_vk, 0x4e0),
-                0x1c522d467e79e574c6bce1ef45cbb9598cc3a99de2de1ce994d0b657450b05b2
-            ) // vk.TABLE4.y
-            mstore(
-                add(_vk, 0x500),
-                0x2546faf6466689ca90de400304774d39e62e214c390b3a8673079fdbddecbd33
-            ) // vk.TABLE_TYPE.x
-            mstore(
-                add(_vk, 0x520),
-                0x1d6d3e828b1f70d792d184284184663d315a9e15827e8b76bcb8118293212f18
-            ) // vk.TABLE_TYPE.y
-            mstore(
-                add(_vk, 0x540),
-                0x299c414c07a461360a7eb720efdedd7b2e8d9b0113d5165f9bbc6ff37cf02129
-            ) // vk.ID1.x
-            mstore(
-                add(_vk, 0x560),
-                0x10593957b62e996faae293f12bb213f8aab1b2bd8470dd1f7c2830f1a02685b0
-            ) // vk.ID1.y
-            mstore(
-                add(_vk, 0x580),
-                0x0d2b84d9b2bfe681638c9bece0a54ae1d68e99173b72f11f1733250fb93c0b81
-            ) // vk.ID2.x
-            mstore(
-                add(_vk, 0x5a0),
-                0x001c6f4b0cced7059df6ac109292b05ad0274b588703de34418b43e9c54ee72f
-            ) // vk.ID2.y
-            mstore(
-                add(_vk, 0x5c0),
-                0x28d96619fe5f51d0769b98b90de98eba5d0a8d546f968f9a19788b03965c5cbd
-            ) // vk.ID3.x
-            mstore(
-                add(_vk, 0x5e0),
-                0x19cb342612e73a055081147a39a8a3d1799b85699671c2cf981497dbf87acf2f
-            ) // vk.ID3.y
-            mstore(
-                add(_vk, 0x600),
-                0x068e1b7d6b632a63e46b48a9ee7d8dcf18b844231da5991689f2a339959648d6
-            ) // vk.ID4.x
-            mstore(
-                add(_vk, 0x620),
-                0x26f7e009b2be97d9d6e7971d4dd86c9e1e663125a0635ff7f9aef9fb5f11a995
-            ) // vk.ID4.y
+            mstore(add(_vk, 0x00), 0x0000000000000000000000000000000000000000000000000000000000008000) // vk.circuit_size
+            mstore(add(_vk, 0x20), 0x0000000000000000000000000000000000000000000000000000000000000017) // vk.num_inputs
+            mstore(add(_vk, 0x40), 0x2d1ba66f5941dc91017171fa69ec2bd0022a2a2d4115a009a93458fd4e26ecfb) // vk.work_root
+            mstore(add(_vk, 0x60), 0x3063edaa444bddc677fcd515f614555a777997e0a9287d1e62bf6dd004d82001) // vk.domain_inverse
+            mstore(add(_vk, 0x80), 0x15be30a46fd34d4b0ddb2cd65e9680e125ee2a5ff8c61590d331f33afb319d89) // vk.Q1.x
+            mstore(add(_vk, 0xa0), 0x24c34b7a2159cde7fd84b8e032dcc07bf0ba1e0a257701ba35d0b3f49d0df63a) // vk.Q1.y
+            mstore(add(_vk, 0xc0), 0x0326446afed1f869c3fd038bd8244b2d115d7a61a989224493654b2f8b4307b8) // vk.Q2.x
+            mstore(add(_vk, 0xe0), 0x236ad728a03cfc8637d98a5cd8f61d18f192c0a1c799da9242fab0cb857a45d7) // vk.Q2.y
+            mstore(add(_vk, 0x100), 0x2814f6a4aff73e5f1e2f7305f31b7bfe2dba0682f146e6da69437d8a9cf138ed) // vk.Q3.x
+            mstore(add(_vk, 0x120), 0x215da942e4b9726a842dc994c4ee5e4cb7d1412b5ecd8a0540ea1936b2f0ae8c) // vk.Q3.y
+            mstore(add(_vk, 0x140), 0x1252b7726cfef7257b9a8c34b0a9e501cb4a784e1ba27947831313f79dbc34aa) // vk.Q4.x
+            mstore(add(_vk, 0x160), 0x0f8328829aee8a3de8188fc10be35b4de80b45651d587e3084572ee4679ecfb9) // vk.Q4.y
+            mstore(add(_vk, 0x180), 0x0bb78080afed8c8fa21d594e8313190f271f27c64e9400a1e209a0e3050fc03a) // vk.Q_M.x
+            mstore(add(_vk, 0x1a0), 0x2a41b47f9eef1a41c0a3dddadb83febc1e2b4365df09b52e2fbb2dafd3539f3f) // vk.Q_M.y
+            mstore(add(_vk, 0x1c0), 0x160b59b957008bcf65f200a80918addc5d4ee331fd3d379e00298e9ca72cdc75) // vk.Q_C.x
+            mstore(add(_vk, 0x1e0), 0x05f14acc5c65a8ca58c9400ac923f1d22847341114b5324054a4436a267e90a1) // vk.Q_C.y
+            mstore(add(_vk, 0x200), 0x208e73e9ba09eac90048f764100ee3d86e5835f36cf480cfb4eab1d3b5dca3b6) // vk.Q_ARITHMETIC.x
+            mstore(add(_vk, 0x220), 0x06115e982b91221e5e3431bc4bb3ea04bbc277811ab7e0f03ea6c8fe8e6601cb) // vk.Q_ARITHMETIC.y
+            mstore(add(_vk, 0x240), 0x2caf6e062fab95b899a9de663dd6b8a939645c7c14746d91eb632264afb04456) // vk.QSORT.x
+            mstore(add(_vk, 0x260), 0x2697fcfcd6cdbf8d6752c1d030f8391ea159e394c8541db9ea7c8c325aa4d0b7) // vk.QSORT.y
+            mstore(add(_vk, 0x280), 0x21959276775cd4749236c8bf773a9b2403cecb45fbf70e6439f73d75442e8850) // vk.Q_ELLIPTIC.x
+            mstore(add(_vk, 0x2a0), 0x017714509f01d1a9ee7ebaf4d50745e33a14150b4fe9850a27e44de56d88cb14) // vk.Q_ELLIPTIC.y
+            mstore(add(_vk, 0x2c0), 0x2e76c4474fcb457db84fb273ccc10a4647a1a37444369f2f275bb74540f5e2d0) // vk.Q_AUX.x
+            mstore(add(_vk, 0x2e0), 0x209035caddd02a78acd0ed617a85d782533bd142c6cad8e3338f3142b919c3a4) // vk.Q_AUX.y
+            mstore(add(_vk, 0x300), 0x0f0d46e4dbcc54fdef69356c776dfc2e42f5dd810f8223bdd551a765b4d9acf3) // vk.SIGMA1.x
+            mstore(add(_vk, 0x320), 0x29befdd04db80eb5f7193b6ccd4f4d12ff16ed825bfc8de071dc4a73938937a7) // vk.SIGMA1.y
+            mstore(add(_vk, 0x340), 0x11dcd17b4713ef8b048336b6ffda9b691ea2e755474b7b444d4fe2982eecd5ef) // vk.SIGMA2.x
+            mstore(add(_vk, 0x360), 0x1d26350d33e4b232d68bb91b902ab8e2a3488b2179520ab293b78694c01eaa98) // vk.SIGMA2.y
+            mstore(add(_vk, 0x380), 0x07facd8444a2bb1b5e9c7857b93850a82193b60d21d9e270b092312571b1733d) // vk.SIGMA3.x
+            mstore(add(_vk, 0x3a0), 0x09a736f1182309ffec66faffae1f379330851aac5241504f95a108b645c1661d) // vk.SIGMA3.y
+            mstore(add(_vk, 0x3c0), 0x013ca1d7a028f5665ed975ffa39bd8a57a8f6fb8d655e71c045ab4bfba99247c) // vk.SIGMA4.x
+            mstore(add(_vk, 0x3e0), 0x042ce9e3875db820c93166f8a870836c9c102d140b59c6c471bf273519d56950) // vk.SIGMA4.y
+            mstore(add(_vk, 0x400), 0x0c14de0a66a29fef89dd6b25fd3dad2c934048825338d32c9be06295d6895cd3) // vk.TABLE1.x
+            mstore(add(_vk, 0x420), 0x27e139fd5f94a95aed910fc16c4497e04e258a714b90ff5b7cb6a25af764b552) // vk.TABLE1.y
+            mstore(add(_vk, 0x440), 0x2d283760e83465149e358f2910d2515f4df4e281eb18f1ef89f9ad7e72bbf9bf) // vk.TABLE2.x
+            mstore(add(_vk, 0x460), 0x1e7bc1bdd03c522b54abfc3879fea26bcda8b544a524e1ca08ef3d5c5f615c06) // vk.TABLE2.y
+            mstore(add(_vk, 0x480), 0x26ac63c1f22adb0e7f8bbcb49f009546c50d24b1247a743a505416bd4bf12e27) // vk.TABLE3.x
+            mstore(add(_vk, 0x4a0), 0x1542e08ee844541bb7f00b5d7e456b1454a0f66a8793e87ee99a04b4686631b1) // vk.TABLE3.y
+            mstore(add(_vk, 0x4c0), 0x2c5519e9f4218e2873b91dacf2c455670a5bbbd72ce413230f8b88aea0b1cda8) // vk.TABLE4.x
+            mstore(add(_vk, 0x4e0), 0x207960ab6d379cbcdd1ec8b7d562f474d2df14bcf4faa4346a82d4dcbba683dd) // vk.TABLE4.y
+            mstore(add(_vk, 0x500), 0x254c7c79f29e6f05184889d52a7c01375832d53ea8dd60b93162a5805d715657) // vk.TABLE_TYPE.x
+            mstore(add(_vk, 0x520), 0x23558713233600d8847c983db3c2771210aad83fc39e33f4821c4b483fe579c1) // vk.TABLE_TYPE.y
+            mstore(add(_vk, 0x540), 0x21e6ce58c8d2014f9fa91880baac76b55e15c7e2c4db6aac5441feda335899a3) // vk.ID1.x
+            mstore(add(_vk, 0x560), 0x0e07e556d83c1aa19fc3cb166784a82549a9a5f42816d84038cab4ada4e7959d) // vk.ID1.y
+            mstore(add(_vk, 0x580), 0x0ffda080ffe2df2292505fe6358ae58cdeb735a057ff91655b010a2a02a26ea8) // vk.ID2.x
+            mstore(add(_vk, 0x5a0), 0x02c6f8f6a8502fbd2d0ff633b01fd8aa0257717287697484604e7e754ceead35) // vk.ID2.y
+            mstore(add(_vk, 0x5c0), 0x184f4b8feb30533d4f346c58617de26a398a7922de31d75696c0239cfbd0e65f) // vk.ID3.x
+            mstore(add(_vk, 0x5e0), 0x0a5a299545b06031772a9080ce5c11ecf1061747b7b47fe9866dfef5ca2fbccd) // vk.ID3.y
+            mstore(add(_vk, 0x600), 0x1aef2e75217d59e45f2c56199740aca3ba1aa0114c49a875a1c044a72207603d) // vk.ID4.x
+            mstore(add(_vk, 0x620), 0x18dc4755a5c13daf844a5a8691a3effd06286f8c8bb6aa5d0c40ee6a1ec1a8ee) // vk.ID4.y
             mstore(add(_vk, 0x640), 0x00) // vk.contains_pairing_point_accumulator
             mstore(add(_vk, 0x660), 0) // vk.pairing_point_accumulator_public_input_indices
-            mstore(
-                add(_vk, 0x680),
-                0x260e01b251f6f1c7e7ff4e580791dee8ea51d87a358e038b4efe30fac09383c1
-            ) // vk.g2_x.X.c1
-            mstore(
-                add(_vk, 0x6a0),
-                0x0118c4d5b837bcc2bc89b5b398b5974e9f5944073b32078b7e231fec938883b0
-            ) // vk.g2_x.X.c0
-            mstore(
-                add(_vk, 0x6c0),
-                0x04fc6369f7110fe3d25156c1bb9a72859cf2a04641f99ba4ee413c80da6a5fe4
-            ) // vk.g2_x.Y.c1
-            mstore(
-                add(_vk, 0x6e0),
-                0x22febda3c0c0632a56475b4214e5615e11e6dd3f96e6cea2854a87d4dacc5e55
-            ) // vk.g2_x.Y.c0
-            mstore(
-                _omegaInverseLoc,
-                0x0b5d56b77fe704e8e92338c0082f37e091126414c830e4c6922d5ac802d842d4
-            ) // vk.work_root_inverse
+            mstore(add(_vk, 0x680), 0x260e01b251f6f1c7e7ff4e580791dee8ea51d87a358e038b4efe30fac09383c1) // vk.g2_x.X.c1 
+            mstore(add(_vk, 0x6a0), 0x0118c4d5b837bcc2bc89b5b398b5974e9f5944073b32078b7e231fec938883b0) // vk.g2_x.X.c0 
+            mstore(add(_vk, 0x6c0), 0x04fc6369f7110fe3d25156c1bb9a72859cf2a04641f99ba4ee413c80da6a5fe4) // vk.g2_x.Y.c1 
+            mstore(add(_vk, 0x6e0), 0x22febda3c0c0632a56475b4214e5615e11e6dd3f96e6cea2854a87d4dacc5e55) // vk.g2_x.Y.c0 
+            mstore(_omegaInverseLoc, 0x05d33766e4590b3722701b6f2fa43d0dc3f028424d384e68c92a742fb2dbc0b4) // vk.work_root_inverse
         }
     }
 }
@@ -533,10 +368,10 @@ abstract contract BaseUltraVerifier {
      */
     function loadVerificationKey(uint256 _vk, uint256 _omegaInverseLoc) internal pure virtual;
 
-    constructor() {
+    constructor() { 
         loadVerificationKey(N_LOC, OMEGA_INVERSE_LOC);
 
-        // We verify that all of the EC points in the verification key lie on the bn128 curve.
+        // We verify that all of the EC points in the verification key lie on the bn128 curve. 
         assembly {
             let q := 21888242871839275222246405745257275088696311157297823662689037894645226208583 // EC group order
 
@@ -663,7 +498,7 @@ abstract contract BaseUltraVerifier {
                 let xx := mulmod(x, x, q)
                 // validate on curve
                 success := and(success, eq(mulmod(y, y, q), addmod(mulmod(x, xx, q), 3, q)))
-            }
+            } 
             // VALIDATE TABLE2
             {
                 let x := mload(TABLE2_X_LOC)
@@ -671,7 +506,7 @@ abstract contract BaseUltraVerifier {
                 let xx := mulmod(x, x, q)
                 // validate on curve
                 success := and(success, eq(mulmod(y, y, q), addmod(mulmod(x, xx, q), 3, q)))
-            }
+            } 
             // VALIDATE TABLE3
             {
                 let x := mload(TABLE3_X_LOC)
@@ -679,7 +514,7 @@ abstract contract BaseUltraVerifier {
                 let xx := mulmod(x, x, q)
                 // validate on curve
                 success := and(success, eq(mulmod(y, y, q), addmod(mulmod(x, xx, q), 3, q)))
-            }
+            } 
             // VALIDATE TABLE4
             {
                 let x := mload(TABLE4_X_LOC)
@@ -687,7 +522,7 @@ abstract contract BaseUltraVerifier {
                 let xx := mulmod(x, x, q)
                 // validate on curve
                 success := and(success, eq(mulmod(y, y, q), addmod(mulmod(x, xx, q), 3, q)))
-            }
+            } 
             // VALIDATE TABLE_TYPE
             {
                 let x := mload(TABLE_TYPE_X_LOC)
@@ -742,10 +577,7 @@ abstract contract BaseUltraVerifier {
      * @param _publicInputs - An array of the public inputs
      * @return True if proof is valid, reverts otherwise
      */
-    function verify(
-        bytes calldata _proof,
-        bytes32[] calldata _publicInputs
-    ) external view returns (bool) {
+    function verify(bytes calldata _proof, bytes32[] calldata _publicInputs) external view returns (bool) {
         loadVerificationKey(N_LOC, OMEGA_INVERSE_LOC);
 
         uint256 requiredPublicInputCount;
@@ -858,10 +690,7 @@ abstract contract BaseUltraVerifier {
             {
                 if mload(CONTAINS_RECURSIVE_PROOF_LOC) {
                     let public_inputs_ptr := add(calldataload(0x24), 0x24)
-                    let index_counter := add(
-                        shl(5, mload(RECURSIVE_PROOF_PUBLIC_INPUT_INDICES_LOC)),
-                        public_inputs_ptr
-                    )
+                    let index_counter := add(shl(5, mload(RECURSIVE_PROOF_PUBLIC_INPUT_INDICES_LOC)), public_inputs_ptr)
 
                     let x0 := calldataload(index_counter)
                     x0 := add(x0, shl(68, calldataload(add(index_counter, 0x20))))
@@ -908,19 +737,11 @@ abstract contract BaseUltraVerifier {
                 let public_inputs_start := add(calldataload(0x24), 0x24)
                 // copy the public inputs over
                 let public_input_size := mul(mload(NUM_INPUTS_LOC), 0x20)
-                calldatacopy(
-                    add(PUBLIC_INPUTS_HASH_LOCATION, 0x20),
-                    public_inputs_start,
-                    public_input_size
-                )
+                calldatacopy(add(PUBLIC_INPUTS_HASH_LOCATION, 0x20), public_inputs_start, public_input_size)
 
                 // copy W1, W2, W3 into challenge. Each point is 0x40 bytes, so load 0xc0 = 3 * 0x40 bytes (ETA input length)
                 let w_start := add(calldataload(0x04), 0x24)
-                calldatacopy(
-                    add(add(PUBLIC_INPUTS_HASH_LOCATION, 0x20), public_input_size),
-                    w_start,
-                    ETA_INPUT_LENGTH
-                )
+                calldatacopy(add(add(PUBLIC_INPUTS_HASH_LOCATION, 0x20), public_input_size), w_start, ETA_INPUT_LENGTH)
 
                 // Challenge is the old challenge + public inputs + W1, W2, W3 (0x20 + public_input_size + 0xc0)
                 let challenge_bytes_size := add(0x20, add(public_input_size, ETA_INPUT_LENGTH))
@@ -1021,9 +842,7 @@ abstract contract BaseUltraVerifier {
                 let root_2 := mulmod(beta, 0x0c, p_clone)
                 // @note 0x05 + 0x07 == 0x0c == external coset generator
 
-                for {} lt(public_inputs_ptr, endpoint_ptr) {
-                    public_inputs_ptr := add(public_inputs_ptr, 0x20)
-                } {
+                for {} lt(public_inputs_ptr, endpoint_ptr) { public_inputs_ptr := add(public_inputs_ptr, 0x20) } {
                     /**
                      * input = public_input[i]
                      * valid_inputs &= input < p
@@ -1065,9 +884,7 @@ abstract contract BaseUltraVerifier {
                 {
                     let exponent := mload(N_LOC)
                     let count := 1
-                    for {} lt(count, exponent) {
-                        count := add(count, count)
-                    } {
+                    for {} lt(count, exponent) { count := add(count, count) } {
                         delta_numerator := mulmod(delta_numerator, delta_numerator, p)
                     }
                 }
@@ -1110,9 +927,7 @@ abstract contract BaseUltraVerifier {
                     // pow_small
                     let exponent := mload(N_LOC)
                     let count := 1
-                    for {} lt(count, exponent) {
-                        count := add(count, count)
-                    } {
+                    for {} lt(count, exponent) { count := add(count, count) } {
                         vanishing_numerator := mulmod(vanishing_numerator, vanishing_numerator, p)
                     }
                 }
@@ -1125,22 +940,11 @@ abstract contract BaseUltraVerifier {
 
                 let vanishing_denominator := addmod(zeta, work_root, p)
                 work_root := mulmod(work_root, accumulating_root, p)
-                vanishing_denominator := mulmod(
-                    vanishing_denominator,
-                    addmod(zeta, work_root, p),
-                    p
-                )
+                vanishing_denominator := mulmod(vanishing_denominator, addmod(zeta, work_root, p), p)
                 work_root := mulmod(work_root, accumulating_root, p)
-                vanishing_denominator := mulmod(
-                    vanishing_denominator,
-                    addmod(zeta, work_root, p),
-                    p
-                )
-                vanishing_denominator := mulmod(
-                    vanishing_denominator,
-                    addmod(zeta, mulmod(work_root, accumulating_root, p), p),
-                    p
-                )
+                vanishing_denominator := mulmod(vanishing_denominator, addmod(zeta, work_root, p), p)
+                vanishing_denominator :=
+                    mulmod(vanishing_denominator, addmod(zeta, mulmod(work_root, accumulating_root, p), p), p)
 
                 work_root := mload(OMEGA_LOC)
 
@@ -1149,15 +953,10 @@ abstract contract BaseUltraVerifier {
 
                 accumulating_root := mulmod(work_root, work_root, p)
 
-                let l_end_denominator := addmod(
-                    mulmod(
-                        mulmod(mulmod(accumulating_root, accumulating_root, p), work_root, p),
-                        zeta,
-                        p
-                    ),
-                    sub(p, 1),
-                    p
-                )
+                let l_end_denominator :=
+                    addmod(
+                        mulmod(mulmod(mulmod(accumulating_root, accumulating_root, p), work_root, p), zeta, p), sub(p, 1), p
+                    )
 
                 /**
                  * Compute inversions using Montgomery's batch inversion trick
@@ -1201,11 +1000,7 @@ abstract contract BaseUltraVerifier {
                 t0 := mulmod(accumulator, t0, p)
                 accumulator := mulmod(accumulator, vanishing_denominator, p)
 
-                accumulator := mulmod(
-                    mulmod(accumulator, accumulator, p),
-                    mload(DELTA_DENOMINATOR_LOC),
-                    p
-                )
+                accumulator := mulmod(mulmod(accumulator, accumulator, p), mload(DELTA_DENOMINATOR_LOC), p)
 
                 mstore(PUBLIC_INPUT_DELTA_LOC, mulmod(mload(DELTA_NUMERATOR_LOC), accumulator, p))
                 mstore(ZERO_POLY_LOC, mulmod(vanishing_numerator, t0, p))
@@ -1243,43 +1038,37 @@ abstract contract BaseUltraVerifier {
                  * t2 = (W2 + gamma + beta * sigma_3_eval) * (W3 + gamma + beta * sigma_4_eval)
                  * result -= (alpha_base * z_omega_eval * t1 * t2)
                  */
-                let t1 := mulmod(
-                    add(add(mload(W1_EVAL_LOC), gamma), mulmod(beta, mload(ID1_EVAL_LOC), p)),
-                    add(add(mload(W2_EVAL_LOC), gamma), mulmod(beta, mload(ID2_EVAL_LOC), p)),
-                    p
-                )
-                let t2 := mulmod(
-                    add(add(mload(W3_EVAL_LOC), gamma), mulmod(beta, mload(ID3_EVAL_LOC), p)),
-                    add(add(mload(W4_EVAL_LOC), gamma), mulmod(beta, mload(ID4_EVAL_LOC), p)),
-                    p
-                )
-                let result := mulmod(
-                    mload(C_ALPHA_BASE_LOC),
-                    mulmod(mload(Z_EVAL_LOC), mulmod(t1, t2, p), p),
-                    p
-                )
-                t1 := mulmod(
-                    add(add(mload(W1_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA1_EVAL_LOC), p)),
-                    add(add(mload(W2_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA2_EVAL_LOC), p)),
-                    p
-                )
-                t2 := mulmod(
-                    add(add(mload(W3_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA3_EVAL_LOC), p)),
-                    add(add(mload(W4_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA4_EVAL_LOC), p)),
-                    p
-                )
-                result := addmod(
-                    result,
-                    sub(
-                        p,
-                        mulmod(
-                            mload(C_ALPHA_BASE_LOC),
-                            mulmod(mload(Z_OMEGA_EVAL_LOC), mulmod(t1, t2, p), p),
-                            p
-                        )
-                    ),
-                    p
-                )
+                let t1 :=
+                    mulmod(
+                        add(add(mload(W1_EVAL_LOC), gamma), mulmod(beta, mload(ID1_EVAL_LOC), p)),
+                        add(add(mload(W2_EVAL_LOC), gamma), mulmod(beta, mload(ID2_EVAL_LOC), p)),
+                        p
+                    )
+                let t2 :=
+                    mulmod(
+                        add(add(mload(W3_EVAL_LOC), gamma), mulmod(beta, mload(ID3_EVAL_LOC), p)),
+                        add(add(mload(W4_EVAL_LOC), gamma), mulmod(beta, mload(ID4_EVAL_LOC), p)),
+                        p
+                    )
+                let result := mulmod(mload(C_ALPHA_BASE_LOC), mulmod(mload(Z_EVAL_LOC), mulmod(t1, t2, p), p), p)
+                t1 :=
+                    mulmod(
+                        add(add(mload(W1_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA1_EVAL_LOC), p)),
+                        add(add(mload(W2_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA2_EVAL_LOC), p)),
+                        p
+                    )
+                t2 :=
+                    mulmod(
+                        add(add(mload(W3_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA3_EVAL_LOC), p)),
+                        add(add(mload(W4_EVAL_LOC), gamma), mulmod(beta, mload(SIGMA4_EVAL_LOC), p)),
+                        p
+                    )
+                result :=
+                    addmod(
+                        result,
+                        sub(p, mulmod(mload(C_ALPHA_BASE_LOC), mulmod(mload(Z_OMEGA_EVAL_LOC), mulmod(t1, t2, p), p), p)),
+                        p
+                    )
 
                 /**
                  * alpha_base *= alpha
@@ -1289,23 +1078,20 @@ abstract contract BaseUltraVerifier {
                  * alpha_Base *= alpha
                  */
                 mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p))
-                result := addmod(
-                    result,
-                    mulmod(
-                        mload(C_ALPHA_BASE_LOC),
+                result :=
+                    addmod(
+                        result,
                         mulmod(
-                            mload(L_END_LOC),
-                            addmod(
-                                mload(Z_OMEGA_EVAL_LOC),
-                                sub(p, mload(PUBLIC_INPUT_DELTA_LOC)),
+                            mload(C_ALPHA_BASE_LOC),
+                            mulmod(
+                                mload(L_END_LOC),
+                                addmod(mload(Z_OMEGA_EVAL_LOC), sub(p, mload(PUBLIC_INPUT_DELTA_LOC)), p),
                                 p
                             ),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
+                    )
                 mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p))
                 mstore(
                     PERMUTATION_IDENTITY,
@@ -1336,65 +1122,46 @@ abstract contract BaseUltraVerifier {
                  * f += (w1(z) + q2.w1(zω))
                  */
                 let f := mulmod(mload(C_ETA_LOC), mload(Q3_EVAL_LOC), p)
-                f := addmod(
-                    f,
-                    addmod(
-                        mload(W3_EVAL_LOC),
-                        mulmod(mload(QC_EVAL_LOC), mload(W3_OMEGA_EVAL_LOC), p),
-                        p
-                    ),
-                    p
-                )
+                f :=
+                    addmod(f, addmod(mload(W3_EVAL_LOC), mulmod(mload(QC_EVAL_LOC), mload(W3_OMEGA_EVAL_LOC), p), p), p)
                 f := mulmod(f, mload(C_ETA_LOC), p)
-                f := addmod(
-                    f,
-                    addmod(
-                        mload(W2_EVAL_LOC),
-                        mulmod(mload(QM_EVAL_LOC), mload(W2_OMEGA_EVAL_LOC), p),
-                        p
-                    ),
-                    p
-                )
+                f :=
+                    addmod(f, addmod(mload(W2_EVAL_LOC), mulmod(mload(QM_EVAL_LOC), mload(W2_OMEGA_EVAL_LOC), p), p), p)
                 f := mulmod(f, mload(C_ETA_LOC), p)
-                f := addmod(
-                    f,
-                    addmod(
-                        mload(W1_EVAL_LOC),
-                        mulmod(mload(Q2_EVAL_LOC), mload(W1_OMEGA_EVAL_LOC), p),
-                        p
-                    ),
-                    p
-                )
+                f :=
+                    addmod(f, addmod(mload(W1_EVAL_LOC), mulmod(mload(Q2_EVAL_LOC), mload(W1_OMEGA_EVAL_LOC), p), p), p)
 
                 // t(z) = table4(z).η³ + table3(z).η² + table2(z).η + table1(z)
-                let t := addmod(
+                let t :=
                     addmod(
                         addmod(
-                            mulmod(mload(TABLE4_EVAL_LOC), mload(C_ETA_CUBE_LOC), p),
-                            mulmod(mload(TABLE3_EVAL_LOC), mload(C_ETA_SQR_LOC), p),
+                            addmod(
+                                mulmod(mload(TABLE4_EVAL_LOC), mload(C_ETA_CUBE_LOC), p),
+                                mulmod(mload(TABLE3_EVAL_LOC), mload(C_ETA_SQR_LOC), p),
+                                p
+                            ),
+                            mulmod(mload(TABLE2_EVAL_LOC), mload(C_ETA_LOC), p),
                             p
                         ),
-                        mulmod(mload(TABLE2_EVAL_LOC), mload(C_ETA_LOC), p),
+                        mload(TABLE1_EVAL_LOC),
                         p
-                    ),
-                    mload(TABLE1_EVAL_LOC),
-                    p
-                )
+                    )
 
                 // t(zw) = table4(zw).η³ + table3(zw).η² + table2(zw).η + table1(zw)
-                let t_omega := addmod(
+                let t_omega :=
                     addmod(
                         addmod(
-                            mulmod(mload(TABLE4_OMEGA_EVAL_LOC), mload(C_ETA_CUBE_LOC), p),
-                            mulmod(mload(TABLE3_OMEGA_EVAL_LOC), mload(C_ETA_SQR_LOC), p),
+                            addmod(
+                                mulmod(mload(TABLE4_OMEGA_EVAL_LOC), mload(C_ETA_CUBE_LOC), p),
+                                mulmod(mload(TABLE3_OMEGA_EVAL_LOC), mload(C_ETA_SQR_LOC), p),
+                                p
+                            ),
+                            mulmod(mload(TABLE2_OMEGA_EVAL_LOC), mload(C_ETA_LOC), p),
                             p
                         ),
-                        mulmod(mload(TABLE2_OMEGA_EVAL_LOC), mload(C_ETA_LOC), p),
+                        mload(TABLE1_OMEGA_EVAL_LOC),
                         p
-                    ),
-                    mload(TABLE1_OMEGA_EVAL_LOC),
-                    p
-                )
+                    )
 
                 /**
                  * Goal: numerator = (TABLE_TYPE_EVAL * f(z) + γ) * (t(z) + βt(zω) + γ(β + 1)) * (β + 1)
@@ -1408,21 +1175,9 @@ abstract contract BaseUltraVerifier {
                  * numerator *= z_lookup(z)
                  * numerator -= temp0
                  */
-                let gamma_beta_constant := mulmod(
-                    mload(C_GAMMA_LOC),
-                    addmod(mload(C_BETA_LOC), 1, p),
-                    p
-                )
-                let numerator := addmod(
-                    mulmod(f, mload(TABLE_TYPE_EVAL_LOC), p),
-                    mload(C_GAMMA_LOC),
-                    p
-                )
-                let temp0 := addmod(
-                    addmod(t, mulmod(t_omega, mload(C_BETA_LOC), p), p),
-                    gamma_beta_constant,
-                    p
-                )
+                let gamma_beta_constant := mulmod(mload(C_GAMMA_LOC), addmod(mload(C_BETA_LOC), 1, p), p)
+                let numerator := addmod(mulmod(f, mload(TABLE_TYPE_EVAL_LOC), p), mload(C_GAMMA_LOC), p)
+                let temp0 := addmod(addmod(t, mulmod(t_omega, mload(C_BETA_LOC), p), p), gamma_beta_constant, p)
                 numerator := mulmod(numerator, temp0, p)
                 numerator := mulmod(numerator, addmod(mload(C_BETA_LOC), 1, p), p)
                 temp0 := mulmod(mload(C_ALPHA_LOC), mload(L_START_LOC), p)
@@ -1441,30 +1196,21 @@ abstract contract BaseUltraVerifier {
                  * PLOOKUP_IDENTITY = (numerator - denominator).alpha_base
                  * alpha_base *= alpha^3
                  */
-                let denominator := addmod(
+                let denominator :=
                     addmod(
-                        mload(S_EVAL_LOC),
-                        mulmod(mload(S_OMEGA_EVAL_LOC), mload(C_BETA_LOC), p),
+                        addmod(mload(S_EVAL_LOC), mulmod(mload(S_OMEGA_EVAL_LOC), mload(C_BETA_LOC), p), p),
+                        gamma_beta_constant,
                         p
-                    ),
-                    gamma_beta_constant,
-                    p
-                )
+                    )
                 let temp1 := mulmod(mload(C_ALPHA_SQR_LOC), mload(L_END_LOC), p)
                 denominator := addmod(denominator, sub(p, temp1), p)
                 denominator := mulmod(denominator, mload(Z_LOOKUP_OMEGA_EVAL_LOC), p)
                 denominator := addmod(denominator, mulmod(temp1, mload(PLOOKUP_DELTA_LOC), p), p)
 
-                mstore(
-                    PLOOKUP_IDENTITY,
-                    mulmod(addmod(numerator, sub(p, denominator), p), mload(C_ALPHA_BASE_LOC), p)
-                )
+                mstore(PLOOKUP_IDENTITY, mulmod(addmod(numerator, sub(p, denominator), p), mload(C_ALPHA_BASE_LOC), p))
 
                 // update alpha
-                mstore(
-                    C_ALPHA_BASE_LOC,
-                    mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_CUBE_LOC), p)
-                )
+                mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_CUBE_LOC), p))
             }
 
             /**
@@ -1514,48 +1260,43 @@ abstract contract BaseUltraVerifier {
 
                 // @todo - Add a explicit test that hits QARITH == 3
                 // w1w2qm := (w_1 . w_2 . q_m . (QARITH_EVAL_LOC - 3)) / 2
-                let w1w2qm := mulmod(
+                let w1w2qm :=
                     mulmod(
                         mulmod(
-                            mulmod(mload(W1_EVAL_LOC), mload(W2_EVAL_LOC), p),
-                            mload(QM_EVAL_LOC),
+                            mulmod(mulmod(mload(W1_EVAL_LOC), mload(W2_EVAL_LOC), p), mload(QM_EVAL_LOC), p),
+                            addmod(mload(QARITH_EVAL_LOC), sub(p, 3), p),
                             p
                         ),
-                        addmod(mload(QARITH_EVAL_LOC), sub(p, 3), p),
+                        NEGATIVE_INVERSE_OF_2_MODULO_P,
                         p
-                    ),
-                    NEGATIVE_INVERSE_OF_2_MODULO_P,
-                    p
-                )
+                    )
 
                 // (w_1 . w_2 . q_m . (q_arith - 3)) / -2) + (w_1 . q_1) + (w_2 . q_2) + (w_3 . q_3) + (w_4 . q_4) + q_c
-                let identity := addmod(
-                    mload(QC_EVAL_LOC),
-                    addmod(w4q3, addmod(w3q3, addmod(w2q2, addmod(w1q1, w1w2qm, p), p), p), p),
-                    p
-                )
+                let identity :=
+                    addmod(
+                        mload(QC_EVAL_LOC), addmod(w4q3, addmod(w3q3, addmod(w2q2, addmod(w1q1, w1w2qm, p), p), p), p), p
+                    )
 
                 // if q_arith == 3 we evaluate an additional mini addition gate (on top of the regular one), where:
                 // w_1 + w_4 - w_1_omega + q_m = 0
                 // we use this gate to save an addition gate when adding or subtracting non-native field elements
                 // α * (q_arith - 2) * (w_1 + w_4 - w_1_omega + q_m)
-                let extra_small_addition_gate_identity := mulmod(
-                    mload(C_ALPHA_LOC),
+                let extra_small_addition_gate_identity :=
                     mulmod(
-                        addmod(mload(QARITH_EVAL_LOC), sub(p, 2), p),
-                        addmod(
-                            mload(QM_EVAL_LOC),
+                        mload(C_ALPHA_LOC),
+                        mulmod(
+                            addmod(mload(QARITH_EVAL_LOC), sub(p, 2), p),
                             addmod(
-                                sub(p, mload(W1_OMEGA_EVAL_LOC)),
-                                addmod(mload(W1_EVAL_LOC), mload(W4_EVAL_LOC), p),
+                                mload(QM_EVAL_LOC),
+                                addmod(
+                                    sub(p, mload(W1_OMEGA_EVAL_LOC)), addmod(mload(W1_EVAL_LOC), mload(W4_EVAL_LOC), p), p
+                                ),
                                 p
                             ),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
+                    )
 
                 // if q_arith == 2 OR q_arith == 3 we add the 4th wire of the NEXT gate into the arithmetic identity
                 // N.B. if q_arith > 2, this wire value will be scaled by (q_arith - 1) relative to the other gate wires!
@@ -1570,11 +1311,7 @@ abstract contract BaseUltraVerifier {
                                 identity,
                                 mulmod(
                                     addmod(mload(QARITH_EVAL_LOC), sub(p, 1), p),
-                                    addmod(
-                                        mload(W4_OMEGA_EVAL_LOC),
-                                        extra_small_addition_gate_identity,
-                                        p
-                                    ),
+                                    addmod(mload(W4_OMEGA_EVAL_LOC), extra_small_addition_gate_identity, p),
                                     p
                                 ),
                                 p
@@ -1586,10 +1323,7 @@ abstract contract BaseUltraVerifier {
                 )
 
                 // update alpha
-                mstore(
-                    C_ALPHA_BASE_LOC,
-                    mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_SQR_LOC), p)
-                )
+                mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_SQR_LOC), p))
             }
 
             /**
@@ -1621,79 +1355,64 @@ abstract contract BaseUltraVerifier {
                 let d3 := addmod(mload(W4_EVAL_LOC), sub(p, mload(W3_EVAL_LOC)), p)
                 let d4 := addmod(mload(W1_OMEGA_EVAL_LOC), sub(p, mload(W4_EVAL_LOC)), p)
 
-                let range_accumulator := mulmod(
+                let range_accumulator :=
                     mulmod(
                         mulmod(
-                            addmod(mulmod(d1, d1, p), sub(p, d1), p),
-                            addmod(d1, minus_two, p),
+                            mulmod(addmod(mulmod(d1, d1, p), sub(p, d1), p), addmod(d1, minus_two, p), p),
+                            addmod(d1, minus_three, p),
                             p
                         ),
-                        addmod(d1, minus_three, p),
+                        mload(C_ALPHA_BASE_LOC),
                         p
-                    ),
-                    mload(C_ALPHA_BASE_LOC),
-                    p
-                )
-                range_accumulator := addmod(
-                    range_accumulator,
-                    mulmod(
+                    )
+                range_accumulator :=
+                    addmod(
+                        range_accumulator,
                         mulmod(
                             mulmod(
-                                addmod(mulmod(d2, d2, p), sub(p, d2), p),
-                                addmod(d2, minus_two, p),
+                                mulmod(addmod(mulmod(d2, d2, p), sub(p, d2), p), addmod(d2, minus_two, p), p),
+                                addmod(d2, minus_three, p),
                                 p
                             ),
-                            addmod(d2, minus_three, p),
+                            mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p),
                             p
                         ),
-                        mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p),
                         p
-                    ),
-                    p
-                )
-                range_accumulator := addmod(
-                    range_accumulator,
-                    mulmod(
+                    )
+                range_accumulator :=
+                    addmod(
+                        range_accumulator,
                         mulmod(
                             mulmod(
-                                addmod(mulmod(d3, d3, p), sub(p, d3), p),
-                                addmod(d3, minus_two, p),
+                                mulmod(addmod(mulmod(d3, d3, p), sub(p, d3), p), addmod(d3, minus_two, p), p),
+                                addmod(d3, minus_three, p),
                                 p
                             ),
-                            addmod(d3, minus_three, p),
+                            mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_SQR_LOC), p),
                             p
                         ),
-                        mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_SQR_LOC), p),
                         p
-                    ),
-                    p
-                )
-                range_accumulator := addmod(
-                    range_accumulator,
-                    mulmod(
+                    )
+                range_accumulator :=
+                    addmod(
+                        range_accumulator,
                         mulmod(
                             mulmod(
-                                addmod(mulmod(d4, d4, p), sub(p, d4), p),
-                                addmod(d4, minus_two, p),
+                                mulmod(addmod(mulmod(d4, d4, p), sub(p, d4), p), addmod(d4, minus_two, p), p),
+                                addmod(d4, minus_three, p),
                                 p
                             ),
-                            addmod(d4, minus_three, p),
+                            mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_CUBE_LOC), p),
                             p
                         ),
-                        mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_CUBE_LOC), p),
                         p
-                    ),
-                    p
-                )
+                    )
                 range_accumulator := mulmod(range_accumulator, mload(QSORT_EVAL_LOC), p)
 
                 mstore(SORT_IDENTITY, range_accumulator)
 
                 // update alpha
-                mstore(
-                    C_ALPHA_BASE_LOC,
-                    mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_QUAD_LOC), p)
-                )
+                mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_QUAD_LOC), p))
             }
 
             /**
@@ -1717,53 +1436,63 @@ abstract contract BaseUltraVerifier {
                 let x_diff := addmod(mload(X2_EVAL_LOC), sub(p, mload(X1_EVAL_LOC)), p)
                 let y2_sqr := mulmod(mload(Y2_EVAL_LOC), mload(Y2_EVAL_LOC), p)
                 let y1_sqr := mulmod(mload(Y1_EVAL_LOC), mload(Y1_EVAL_LOC), p)
-                let y1y2 := mulmod(
-                    mulmod(mload(Y1_EVAL_LOC), mload(Y2_EVAL_LOC), p),
-                    mload(QSIGN_LOC),
-                    p
-                )
+                let y1y2 := mulmod(mulmod(mload(Y1_EVAL_LOC), mload(Y2_EVAL_LOC), p), mload(QSIGN_LOC), p)
 
-                let x_add_identity := addmod(
-                    mulmod(
-                        addmod(
-                            mload(X3_EVAL_LOC),
-                            addmod(mload(X2_EVAL_LOC), mload(X1_EVAL_LOC), p),
+                let x_add_identity :=
+                    addmod(
+                        mulmod(
+                            addmod(mload(X3_EVAL_LOC), addmod(mload(X2_EVAL_LOC), mload(X1_EVAL_LOC), p), p),
+                            mulmod(x_diff, x_diff, p),
                             p
                         ),
-                        mulmod(x_diff, x_diff, p),
+                        addmod(
+                            sub(
+                                p,
+                                addmod(y2_sqr, y1_sqr, p)
+                            ),
+                            addmod(y1y2, y1y2, p),
+                            p
+                        ),
                         p
-                    ),
-                    addmod(sub(p, addmod(y2_sqr, y1_sqr, p)), addmod(y1y2, y1y2, p), p),
-                    p
-                )
-                x_add_identity := mulmod(
-                    mulmod(x_add_identity, addmod(1, sub(p, mload(QM_EVAL_LOC)), p), p),
-                    mload(C_ALPHA_BASE_LOC),
-                    p
-                )
+                    )
+                x_add_identity :=
+                    mulmod(
+                        mulmod(
+                            x_add_identity,
+                            addmod(
+                                1,
+                                sub(p, mload(QM_EVAL_LOC)),
+                                p
+                            ),
+                            p
+                        ),
+                        mload(C_ALPHA_BASE_LOC),
+                        p
+                    )
 
                 // q_elliptic * (x3 + x2 + x1)(x2 - x1)(x2 - x1) - y2^2 - y1^2 + 2(y2y1)*q_sign = 0
-                let y1_plus_y3 := addmod(mload(Y1_EVAL_LOC), mload(Y3_EVAL_LOC), p)
-                let y_diff := addmod(
-                    mulmod(mload(Y2_EVAL_LOC), mload(QSIGN_LOC), p),
-                    sub(p, mload(Y1_EVAL_LOC)),
+                let y1_plus_y3 := addmod(
+                    mload(Y1_EVAL_LOC),
+                    mload(Y3_EVAL_LOC),
                     p
                 )
-                let y_add_identity := addmod(
-                    mulmod(y1_plus_y3, x_diff, p),
-                    mulmod(addmod(mload(X3_EVAL_LOC), sub(p, mload(X1_EVAL_LOC)), p), y_diff, p),
-                    p
-                )
-                y_add_identity := mulmod(
-                    mulmod(y_add_identity, addmod(1, sub(p, mload(QM_EVAL_LOC)), p), p),
-                    mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p),
-                    p
-                )
+                let y_diff := addmod(mulmod(mload(Y2_EVAL_LOC), mload(QSIGN_LOC), p), sub(p, mload(Y1_EVAL_LOC)), p)
+                let y_add_identity :=
+                    addmod(
+                        mulmod(y1_plus_y3, x_diff, p),
+                        mulmod(addmod(mload(X3_EVAL_LOC), sub(p, mload(X1_EVAL_LOC)), p), y_diff, p),
+                        p
+                    )
+                y_add_identity :=
+                    mulmod(
+                        mulmod(y_add_identity, addmod(1, sub(p, mload(QM_EVAL_LOC)), p), p),
+                        mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p),
+                        p
+                    )
 
                 // ELLIPTIC_IDENTITY = (x_identity + y_identity) * Q_ELLIPTIC_EVAL
                 mstore(
-                    ELLIPTIC_IDENTITY,
-                    mulmod(addmod(x_add_identity, y_add_identity, p), mload(QELLIPTIC_EVAL_LOC), p)
+                    ELLIPTIC_IDENTITY, mulmod(addmod(x_add_identity, y_add_identity, p), mload(QELLIPTIC_EVAL_LOC), p)
                 )
             }
             {
@@ -1783,50 +1512,37 @@ abstract contract BaseUltraVerifier {
                 // (x3 + x1 + x1) (4y1*y1) - 9 * x1 * x1 * x1 * x1 = 0
                 let x1_sqr := mulmod(mload(X1_EVAL_LOC), mload(X1_EVAL_LOC), p)
                 let y1_sqr := mulmod(mload(Y1_EVAL_LOC), mload(Y1_EVAL_LOC), p)
-                let x_pow_4 := mulmod(
-                    addmod(y1_sqr, GRUMPKIN_CURVE_B_PARAMETER_NEGATED, p),
-                    mload(X1_EVAL_LOC),
-                    p
-                )
+                let x_pow_4 := mulmod(addmod(y1_sqr, GRUMPKIN_CURVE_B_PARAMETER_NEGATED, p), mload(X1_EVAL_LOC), p)
                 let y1_sqr_mul_4 := mulmod(y1_sqr, 4, p)
                 let x1_pow_4_mul_9 := mulmod(x_pow_4, 9, p)
                 let x1_sqr_mul_3 := mulmod(x1_sqr, 3, p)
-                let x_double_identity := addmod(
-                    mulmod(
-                        addmod(
-                            mload(X3_EVAL_LOC),
-                            addmod(mload(X1_EVAL_LOC), mload(X1_EVAL_LOC), p),
+                let x_double_identity :=
+                    addmod(
+                        mulmod(
+                            addmod(mload(X3_EVAL_LOC), addmod(mload(X1_EVAL_LOC), mload(X1_EVAL_LOC), p), p),
+                            y1_sqr_mul_4,
                             p
                         ),
-                        y1_sqr_mul_4,
+                        sub(p, x1_pow_4_mul_9),
                         p
-                    ),
-                    sub(p, x1_pow_4_mul_9),
-                    p
-                )
+                    )
                 // (y1 + y1) (2y1) - (3 * x1 * x1)(x1 - x3) = 0
-                let y_double_identity := addmod(
-                    mulmod(
-                        x1_sqr_mul_3,
-                        addmod(mload(X1_EVAL_LOC), sub(p, mload(X3_EVAL_LOC)), p),
+                let y_double_identity :=
+                    addmod(
+                        mulmod(x1_sqr_mul_3, addmod(mload(X1_EVAL_LOC), sub(p, mload(X3_EVAL_LOC)), p), p),
+                        sub(
+                            p,
+                            mulmod(
+                                addmod(mload(Y1_EVAL_LOC), mload(Y1_EVAL_LOC), p),
+                                addmod(mload(Y1_EVAL_LOC), mload(Y3_EVAL_LOC), p),
+                                p
+                            )
+                        ),
                         p
-                    ),
-                    sub(
-                        p,
-                        mulmod(
-                            addmod(mload(Y1_EVAL_LOC), mload(Y1_EVAL_LOC), p),
-                            addmod(mload(Y1_EVAL_LOC), mload(Y3_EVAL_LOC), p),
-                            p
-                        )
-                    ),
-                    p
-                )
+                    )
                 x_double_identity := mulmod(x_double_identity, mload(C_ALPHA_BASE_LOC), p)
-                y_double_identity := mulmod(
-                    y_double_identity,
-                    mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p),
-                    p
-                )
+                y_double_identity :=
+                    mulmod(y_double_identity, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_LOC), p), p)
                 x_double_identity := mulmod(x_double_identity, mload(QM_EVAL_LOC), p)
                 y_double_identity := mulmod(y_double_identity, mload(QM_EVAL_LOC), p)
                 // ELLIPTIC_IDENTITY += (x_double_identity + y_double_identity) * Q_DOUBLE_EVAL
@@ -1834,20 +1550,13 @@ abstract contract BaseUltraVerifier {
                     ELLIPTIC_IDENTITY,
                     addmod(
                         mload(ELLIPTIC_IDENTITY),
-                        mulmod(
-                            addmod(x_double_identity, y_double_identity, p),
-                            mload(QELLIPTIC_EVAL_LOC),
-                            p
-                        ),
+                        mulmod(addmod(x_double_identity, y_double_identity, p), mload(QELLIPTIC_EVAL_LOC), p),
                         p
                     )
                 )
 
                 // update alpha
-                mstore(
-                    C_ALPHA_BASE_LOC,
-                    mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_QUAD_LOC), p)
-                )
+                mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_QUAD_LOC), p))
             }
 
             /**
@@ -1875,66 +1584,52 @@ abstract contract BaseUltraVerifier {
                      * non_native_field_identity = (non_native_field_gate_1 + non_native_field_gate_2 + non_native_field_gate_3) * q_2
                      */
 
-                    let limb_subproduct := addmod(
-                        mulmod(mload(W1_EVAL_LOC), mload(W2_OMEGA_EVAL_LOC), p),
-                        mulmod(mload(W1_OMEGA_EVAL_LOC), mload(W2_EVAL_LOC), p),
-                        p
-                    )
+                    let limb_subproduct :=
+                        addmod(
+                            mulmod(mload(W1_EVAL_LOC), mload(W2_OMEGA_EVAL_LOC), p),
+                            mulmod(mload(W1_OMEGA_EVAL_LOC), mload(W2_EVAL_LOC), p),
+                            p
+                        )
 
-                    let non_native_field_gate_2 := addmod(
+                    let non_native_field_gate_2 :=
                         addmod(
-                            mulmod(mload(W1_EVAL_LOC), mload(W4_EVAL_LOC), p),
-                            mulmod(mload(W2_EVAL_LOC), mload(W3_EVAL_LOC), p),
+                            addmod(
+                                mulmod(mload(W1_EVAL_LOC), mload(W4_EVAL_LOC), p),
+                                mulmod(mload(W2_EVAL_LOC), mload(W3_EVAL_LOC), p),
+                                p
+                            ),
+                            sub(p, mload(W3_OMEGA_EVAL_LOC)),
                             p
-                        ),
-                        sub(p, mload(W3_OMEGA_EVAL_LOC)),
-                        p
-                    )
+                        )
                     non_native_field_gate_2 := mulmod(non_native_field_gate_2, LIMB_SIZE, p)
-                    non_native_field_gate_2 := addmod(
-                        non_native_field_gate_2,
-                        sub(p, mload(W4_OMEGA_EVAL_LOC)),
-                        p
-                    )
+                    non_native_field_gate_2 := addmod(non_native_field_gate_2, sub(p, mload(W4_OMEGA_EVAL_LOC)), p)
                     non_native_field_gate_2 := addmod(non_native_field_gate_2, limb_subproduct, p)
-                    non_native_field_gate_2 := mulmod(
-                        non_native_field_gate_2,
-                        mload(Q4_EVAL_LOC),
-                        p
-                    )
+                    non_native_field_gate_2 := mulmod(non_native_field_gate_2, mload(Q4_EVAL_LOC), p)
                     limb_subproduct := mulmod(limb_subproduct, LIMB_SIZE, p)
-                    limb_subproduct := addmod(
-                        limb_subproduct,
-                        mulmod(mload(W1_OMEGA_EVAL_LOC), mload(W2_OMEGA_EVAL_LOC), p),
-                        p
-                    )
-                    let non_native_field_gate_1 := mulmod(
-                        addmod(
-                            limb_subproduct,
-                            sub(p, addmod(mload(W3_EVAL_LOC), mload(W4_EVAL_LOC), p)),
+                    limb_subproduct :=
+                        addmod(limb_subproduct, mulmod(mload(W1_OMEGA_EVAL_LOC), mload(W2_OMEGA_EVAL_LOC), p), p)
+                    let non_native_field_gate_1 :=
+                        mulmod(
+                            addmod(limb_subproduct, sub(p, addmod(mload(W3_EVAL_LOC), mload(W4_EVAL_LOC), p)), p),
+                            mload(Q3_EVAL_LOC),
                             p
-                        ),
-                        mload(Q3_EVAL_LOC),
-                        p
-                    )
-                    let non_native_field_gate_3 := mulmod(
-                        addmod(
-                            addmod(limb_subproduct, mload(W4_EVAL_LOC), p),
-                            sub(p, addmod(mload(W3_OMEGA_EVAL_LOC), mload(W4_OMEGA_EVAL_LOC), p)),
+                        )
+                    let non_native_field_gate_3 :=
+                        mulmod(
+                            addmod(
+                                addmod(limb_subproduct, mload(W4_EVAL_LOC), p),
+                                sub(p, addmod(mload(W3_OMEGA_EVAL_LOC), mload(W4_OMEGA_EVAL_LOC), p)),
+                                p
+                            ),
+                            mload(QM_EVAL_LOC),
                             p
-                        ),
-                        mload(QM_EVAL_LOC),
-                        p
-                    )
-                    let non_native_field_identity := mulmod(
-                        addmod(
-                            addmod(non_native_field_gate_1, non_native_field_gate_2, p),
-                            non_native_field_gate_3,
+                        )
+                    let non_native_field_identity :=
+                        mulmod(
+                            addmod(addmod(non_native_field_gate_1, non_native_field_gate_2, p), non_native_field_gate_3, p),
+                            mload(Q2_EVAL_LOC),
                             p
-                        ),
-                        mload(Q2_EVAL_LOC),
-                        p
-                    )
+                        )
 
                     mstore(AUX_NON_NATIVE_FIELD_EVALUATION, non_native_field_identity)
                 }
@@ -1985,20 +1680,12 @@ abstract contract BaseUltraVerifier {
                     limb_accumulator_2 := addmod(limb_accumulator_2, mload(W4_EVAL_LOC), p)
                     limb_accumulator_2 := mulmod(limb_accumulator_2, SUBLIMB_SHIFT, p)
                     limb_accumulator_2 := addmod(limb_accumulator_2, mload(W3_EVAL_LOC), p)
-                    limb_accumulator_2 := addmod(
-                        limb_accumulator_2,
-                        sub(p, mload(W4_OMEGA_EVAL_LOC)),
-                        p
-                    )
+                    limb_accumulator_2 := addmod(limb_accumulator_2, sub(p, mload(W4_OMEGA_EVAL_LOC)), p)
                     limb_accumulator_2 := mulmod(limb_accumulator_2, mload(QM_EVAL_LOC), p)
 
                     mstore(
                         AUX_LIMB_ACCUMULATOR_EVALUATION,
-                        mulmod(
-                            addmod(limb_accumulator_1, limb_accumulator_2, p),
-                            mload(Q3_EVAL_LOC),
-                            p
-                        )
+                        mulmod(addmod(limb_accumulator_1, limb_accumulator_2, p), mload(Q3_EVAL_LOC), p)
                     )
                 }
 
@@ -2025,39 +1712,20 @@ abstract contract BaseUltraVerifier {
                     memory_record_check := addmod(memory_record_check, mload(QC_EVAL_LOC), p)
 
                     let partial_record_check := memory_record_check
-                    memory_record_check := addmod(
-                        memory_record_check,
-                        sub(p, mload(W4_EVAL_LOC)),
-                        p
-                    )
+                    memory_record_check := addmod(memory_record_check, sub(p, mload(W4_EVAL_LOC)), p)
 
                     mstore(AUX_MEMORY_EVALUATION, memory_record_check)
 
                     // index_delta = w_1_omega - w_1
-                    let index_delta := addmod(
-                        mload(W1_OMEGA_EVAL_LOC),
-                        sub(p, mload(W1_EVAL_LOC)),
-                        p
-                    )
+                    let index_delta := addmod(mload(W1_OMEGA_EVAL_LOC), sub(p, mload(W1_EVAL_LOC)), p)
                     // record_delta = w_4_omega - w_4
-                    let record_delta := addmod(
-                        mload(W4_OMEGA_EVAL_LOC),
-                        sub(p, mload(W4_EVAL_LOC)),
-                        p
-                    )
+                    let record_delta := addmod(mload(W4_OMEGA_EVAL_LOC), sub(p, mload(W4_EVAL_LOC)), p)
                     // index_is_monotonically_increasing = index_delta * (index_delta - 1)
-                    let index_is_monotonically_increasing := mulmod(
-                        index_delta,
-                        addmod(index_delta, sub(p, 1), p),
-                        p
-                    )
+                    let index_is_monotonically_increasing := mulmod(index_delta, addmod(index_delta, sub(p, 1), p), p)
 
                     // adjacent_values_match_if_adjacent_indices_match = record_delta * (1 - index_delta)
-                    let adjacent_values_match_if_adjacent_indices_match := mulmod(
-                        record_delta,
-                        addmod(1, sub(p, index_delta), p),
-                        p
-                    )
+                    let adjacent_values_match_if_adjacent_indices_match :=
+                        mulmod(record_delta, addmod(1, sub(p, index_delta), p), p)
 
                     // AUX_ROM_CONSISTENCY_EVALUATION = ((adjacent_values_match_if_adjacent_indices_match * alpha) + index_is_monotonically_increasing) * alpha + partial_record_check
                     mstore(
@@ -2065,11 +1733,7 @@ abstract contract BaseUltraVerifier {
                         addmod(
                             mulmod(
                                 addmod(
-                                    mulmod(
-                                        adjacent_values_match_if_adjacent_indices_match,
-                                        mload(C_ALPHA_LOC),
-                                        p
-                                    ),
+                                    mulmod(adjacent_values_match_if_adjacent_indices_match, mload(C_ALPHA_LOC), p),
                                     index_is_monotonically_increasing,
                                     p
                                 ),
@@ -2091,44 +1755,23 @@ abstract contract BaseUltraVerifier {
                          * next_gate_access_type *= eta;
                          * next_gate_access_type = w_4_omega - next_gate_access_type;
                          */
-                        let next_gate_access_type := mulmod(
-                            mload(W3_OMEGA_EVAL_LOC),
-                            mload(C_ETA_LOC),
-                            p
-                        )
-                        next_gate_access_type := addmod(
-                            next_gate_access_type,
-                            mload(W2_OMEGA_EVAL_LOC),
-                            p
-                        )
+                        let next_gate_access_type := mulmod(mload(W3_OMEGA_EVAL_LOC), mload(C_ETA_LOC), p)
+                        next_gate_access_type := addmod(next_gate_access_type, mload(W2_OMEGA_EVAL_LOC), p)
                         next_gate_access_type := mulmod(next_gate_access_type, mload(C_ETA_LOC), p)
-                        next_gate_access_type := addmod(
-                            next_gate_access_type,
-                            mload(W1_OMEGA_EVAL_LOC),
-                            p
-                        )
+                        next_gate_access_type := addmod(next_gate_access_type, mload(W1_OMEGA_EVAL_LOC), p)
                         next_gate_access_type := mulmod(next_gate_access_type, mload(C_ETA_LOC), p)
-                        next_gate_access_type := addmod(
-                            mload(W4_OMEGA_EVAL_LOC),
-                            sub(p, next_gate_access_type),
-                            p
-                        )
+                        next_gate_access_type := addmod(mload(W4_OMEGA_EVAL_LOC), sub(p, next_gate_access_type), p)
 
                         // value_delta = w_3_omega - w_3
-                        let value_delta := addmod(
-                            mload(W3_OMEGA_EVAL_LOC),
-                            sub(p, mload(W3_EVAL_LOC)),
-                            p
-                        )
+                        let value_delta := addmod(mload(W3_OMEGA_EVAL_LOC), sub(p, mload(W3_EVAL_LOC)), p)
                         //  adjacent_values_match_if_adjacent_indices_match_and_next_access_is_a_read_operation = (1 - index_delta) * value_delta * (1 - next_gate_access_type);
 
-                        let
-                            adjacent_values_match_if_adjacent_indices_match_and_next_access_is_a_read_operation
-                        := mulmod(
-                            addmod(1, sub(p, index_delta), p),
-                            mulmod(value_delta, addmod(1, sub(p, next_gate_access_type), p), p),
-                            p
-                        )
+                        let adjacent_values_match_if_adjacent_indices_match_and_next_access_is_a_read_operation :=
+                            mulmod(
+                                addmod(1, sub(p, index_delta), p),
+                                mulmod(value_delta, addmod(1, sub(p, next_gate_access_type), p), p),
+                                p
+                            )
 
                         // AUX_RAM_CONSISTENCY_EVALUATION
 
@@ -2145,26 +1788,16 @@ abstract contract BaseUltraVerifier {
                          * RAM_consistency_check_identity += access_check;
                          */
 
-                        let access_type := addmod(
-                            mload(W4_EVAL_LOC),
-                            sub(p, partial_record_check),
-                            p
-                        )
-                        let access_check := mulmod(
-                            access_type,
-                            addmod(access_type, sub(p, 1), p),
-                            p
-                        )
-                        let next_gate_access_type_is_boolean := mulmod(
-                            next_gate_access_type,
-                            addmod(next_gate_access_type, sub(p, 1), p),
-                            p
-                        )
-                        let RAM_cci := mulmod(
-                            adjacent_values_match_if_adjacent_indices_match_and_next_access_is_a_read_operation,
-                            mload(C_ALPHA_LOC),
-                            p
-                        )
+                        let access_type := addmod(mload(W4_EVAL_LOC), sub(p, partial_record_check), p)
+                        let access_check := mulmod(access_type, addmod(access_type, sub(p, 1), p), p)
+                        let next_gate_access_type_is_boolean :=
+                            mulmod(next_gate_access_type, addmod(next_gate_access_type, sub(p, 1), p), p)
+                        let RAM_cci :=
+                            mulmod(
+                                adjacent_values_match_if_adjacent_indices_match_and_next_access_is_a_read_operation,
+                                mload(C_ALPHA_LOC),
+                                p
+                            )
                         RAM_cci := addmod(RAM_cci, index_is_monotonically_increasing, p)
                         RAM_cci := mulmod(RAM_cci, mload(C_ALPHA_LOC), p)
                         RAM_cci := addmod(RAM_cci, next_gate_access_type_is_boolean, p)
@@ -2176,18 +1809,13 @@ abstract contract BaseUltraVerifier {
 
                     {
                         // timestamp_delta = w_2_omega - w_2
-                        let timestamp_delta := addmod(
-                            mload(W2_OMEGA_EVAL_LOC),
-                            sub(p, mload(W2_EVAL_LOC)),
-                            p
-                        )
+                        let timestamp_delta := addmod(mload(W2_OMEGA_EVAL_LOC), sub(p, mload(W2_EVAL_LOC)), p)
 
                         // RAM_timestamp_check_identity = (1 - index_delta) * timestamp_delta - w_3
-                        let RAM_timestamp_check_identity := addmod(
-                            mulmod(timestamp_delta, addmod(1, sub(p, index_delta), p), p),
-                            sub(p, mload(W3_EVAL_LOC)),
-                            p
-                        )
+                        let RAM_timestamp_check_identity :=
+                            addmod(
+                                mulmod(timestamp_delta, addmod(1, sub(p, index_delta), p), p), sub(p, mload(W3_EVAL_LOC)), p
+                            )
 
                         /**
                          * memory_identity = ROM_consistency_check_identity * q_2;
@@ -2200,56 +1828,26 @@ abstract contract BaseUltraVerifier {
                          * auxiliary_identity *= q_aux;
                          * auxiliary_identity *= alpha_base;
                          */
-                        let memory_identity := mulmod(
-                            mload(AUX_ROM_CONSISTENCY_EVALUATION),
-                            mload(Q2_EVAL_LOC),
-                            p
-                        )
-                        memory_identity := addmod(
-                            memory_identity,
-                            mulmod(RAM_timestamp_check_identity, mload(Q4_EVAL_LOC), p),
-                            p
-                        )
-                        memory_identity := addmod(
-                            memory_identity,
-                            mulmod(mload(AUX_MEMORY_EVALUATION), mload(QM_EVAL_LOC), p),
-                            p
-                        )
+                        let memory_identity := mulmod(mload(AUX_ROM_CONSISTENCY_EVALUATION), mload(Q2_EVAL_LOC), p)
+                        memory_identity :=
+                            addmod(memory_identity, mulmod(RAM_timestamp_check_identity, mload(Q4_EVAL_LOC), p), p)
+                        memory_identity :=
+                            addmod(memory_identity, mulmod(mload(AUX_MEMORY_EVALUATION), mload(QM_EVAL_LOC), p), p)
                         memory_identity := mulmod(memory_identity, mload(Q1_EVAL_LOC), p)
-                        memory_identity := addmod(
-                            memory_identity,
-                            mulmod(
-                                mload(AUX_RAM_CONSISTENCY_EVALUATION),
-                                mload(QARITH_EVAL_LOC),
-                                p
-                            ),
-                            p
-                        )
+                        memory_identity :=
+                            addmod(
+                                memory_identity, mulmod(mload(AUX_RAM_CONSISTENCY_EVALUATION), mload(QARITH_EVAL_LOC), p), p
+                            )
 
-                        let auxiliary_identity := addmod(
-                            memory_identity,
-                            mload(AUX_NON_NATIVE_FIELD_EVALUATION),
-                            p
-                        )
-                        auxiliary_identity := addmod(
-                            auxiliary_identity,
-                            mload(AUX_LIMB_ACCUMULATOR_EVALUATION),
-                            p
-                        )
+                        let auxiliary_identity := addmod(memory_identity, mload(AUX_NON_NATIVE_FIELD_EVALUATION), p)
+                        auxiliary_identity := addmod(auxiliary_identity, mload(AUX_LIMB_ACCUMULATOR_EVALUATION), p)
                         auxiliary_identity := mulmod(auxiliary_identity, mload(QAUX_EVAL_LOC), p)
-                        auxiliary_identity := mulmod(
-                            auxiliary_identity,
-                            mload(C_ALPHA_BASE_LOC),
-                            p
-                        )
+                        auxiliary_identity := mulmod(auxiliary_identity, mload(C_ALPHA_BASE_LOC), p)
 
                         mstore(AUX_IDENTITY, auxiliary_identity)
 
                         // update alpha
-                        mstore(
-                            C_ALPHA_BASE_LOC,
-                            mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_CUBE_LOC), p)
-                        )
+                        mstore(C_ALPHA_BASE_LOC, mulmod(mload(C_ALPHA_BASE_LOC), mload(C_ALPHA_CUBE_LOC), p))
                     }
                 }
             }
@@ -2271,11 +1869,7 @@ abstract contract BaseUltraVerifier {
                             addmod(
                                 addmod(
                                     addmod(
-                                        addmod(
-                                            mload(PERMUTATION_IDENTITY),
-                                            mload(PLOOKUP_IDENTITY),
-                                            p
-                                        ),
+                                        addmod(mload(PERMUTATION_IDENTITY), mload(PLOOKUP_IDENTITY), p),
                                         mload(ARITHMETIC_IDENTITY),
                                         p
                                     ),
@@ -2419,10 +2013,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = [T2].zeta^n
             success := staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40)
             // accumulator = [T1] + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE T3
             {
@@ -2441,10 +2032,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = [T3].zeta^{2n}
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE T4
             {
@@ -2459,21 +2047,11 @@ abstract contract BaseUltraVerifier {
                 mstore(0x00, x)
                 mstore(0x20, y)
             }
-            mstore(
-                0x40,
-                mulmod(
-                    mulmod(mload(ZETA_POW_N_LOC), mload(ZETA_POW_N_LOC), p),
-                    mload(ZETA_POW_N_LOC),
-                    p
-                )
-            )
+            mstore(0x40, mulmod(mulmod(mload(ZETA_POW_N_LOC), mload(ZETA_POW_N_LOC), p), mload(ZETA_POW_N_LOC), p))
             // accumulator_2 = [T4].zeta^{3n}
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE W1
             {
@@ -2492,10 +2070,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v0.(u + 1).[W1]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE W2
             {
@@ -2514,10 +2089,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v1.(u + 1).[W2]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE W3
             {
@@ -2536,10 +2108,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v2.(u + 1).[W3]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE W4
             {
@@ -2558,10 +2127,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v3.(u + 1).[W4]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE S
             {
@@ -2580,10 +2146,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v4.(u + 1).[S]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE Z
             {
@@ -2602,10 +2165,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v5.(u + 1).[Z]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // VALIDATE Z_LOOKUP
             {
@@ -2624,10 +2184,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v6.(u + 1).[Z_LOOKUP]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE Q1
 
@@ -2638,10 +2195,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v7.[Q1]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE Q2
 
@@ -2652,13 +2206,10 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v8.[Q2]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE Q3
-
+            
             // Verification key fields verified to be on curve at contract deployment
             mstore(0x00, mload(Q3_X_LOC))
             mstore(0x20, mload(Q3_Y_LOC))
@@ -2666,13 +2217,10 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v9.[Q3]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE Q4
-
+            
             // Verification key fields verified to be on curve at contract deployment
             mstore(0x00, mload(Q4_X_LOC))
             mstore(0x20, mload(Q4_Y_LOC))
@@ -2680,13 +2228,10 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v10.[Q4]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE QM
-
+            
             // Verification key fields verified to be on curve at contract deployment
             mstore(0x00, mload(QM_X_LOC))
             mstore(0x20, mload(QM_Y_LOC))
@@ -2694,10 +2239,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v11.[Q;]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE QC
 
@@ -2708,10 +2250,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v12.[QC]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE QARITH
 
@@ -2722,10 +2261,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v13.[QARITH]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE QSORT
 
@@ -2736,10 +2272,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v14.[QSORT]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE QELLIPTIC
 
@@ -2750,10 +2283,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v15.[QELLIPTIC]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE QAUX
 
@@ -2764,10 +2294,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v15.[Q_AUX]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE SIGMA1
 
@@ -2778,10 +2305,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v17.[sigma1]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE SIGMA2
 
@@ -2792,10 +2316,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v18.[sigma2]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE SIGMA3
 
@@ -2806,10 +2327,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v19.[sigma3]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE SIGMA4
 
@@ -2820,10 +2338,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v20.[sigma4]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE TABLE1
 
@@ -2834,10 +2349,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = u.[table1]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE TABLE2
 
@@ -2848,10 +2360,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = u.[table2]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE TABLE3
 
@@ -2862,10 +2371,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = u.[table3]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE TABLE4
 
@@ -2876,10 +2382,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = u.[table4]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE TABLE_TYPE
 
@@ -2890,10 +2393,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v25.[TableType]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE ID1
 
@@ -2904,10 +2404,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v26.[ID1]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE ID2
 
@@ -2918,10 +2415,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v27.[ID2]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE ID3
 
@@ -2932,10 +2426,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v28.[ID3]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             // ACCUMULATE ID4
 
@@ -2946,10 +2437,7 @@ abstract contract BaseUltraVerifier {
             // accumulator_2 = v29.[ID4]
             success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
             // accumulator = accumulator + accumulator_2
-            success := and(
-                success,
-                staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-            )
+            success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
             /**
              * COMPUTE BATCH EVALUATION SCALAR MULTIPLIER
@@ -2964,93 +2452,72 @@ abstract contract BaseUltraVerifier {
                  * batch_evaluation += v5 * (z_omega_eval * u + z_eval)
                  * batch_evaluation += v6 * (z_lookup_omega_eval * u + z_lookup_eval)
                  */
-                let batch_evaluation := mulmod(
-                    mload(C_V0_LOC),
+                let batch_evaluation :=
+                    mulmod(
+                        mload(C_V0_LOC),
+                        addmod(mulmod(mload(W1_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(W1_EVAL_LOC), p),
+                        p
+                    )
+                batch_evaluation :=
                     addmod(
-                        mulmod(mload(W1_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                        mload(W1_EVAL_LOC),
-                        p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V1_LOC),
-                        addmod(
-                            mulmod(mload(W2_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(W2_EVAL_LOC),
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V1_LOC),
+                            addmod(mulmod(mload(W2_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(W2_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V2_LOC),
-                        addmod(
-                            mulmod(mload(W3_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(W3_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V2_LOC),
+                            addmod(mulmod(mload(W3_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(W3_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V3_LOC),
-                        addmod(
-                            mulmod(mload(W4_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(W4_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V3_LOC),
+                            addmod(mulmod(mload(W4_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(W4_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V4_LOC),
-                        addmod(
-                            mulmod(mload(S_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(S_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V4_LOC),
+                            addmod(mulmod(mload(S_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(S_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V5_LOC),
-                        addmod(
-                            mulmod(mload(Z_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(Z_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V5_LOC),
+                            addmod(mulmod(mload(Z_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(Z_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V6_LOC),
-                        addmod(
-                            mulmod(mload(Z_LOOKUP_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(Z_LOOKUP_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V6_LOC),
+                            addmod(mulmod(mload(Z_LOOKUP_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(Z_LOOKUP_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
+                    )
 
                 /**
                  * batch_evaluation += v7 * Q1_EVAL
@@ -3068,76 +2535,20 @@ abstract contract BaseUltraVerifier {
                  * batch_evaluation += v19 * SIGMA3_EVAL_LOC
                  * batch_evaluation += v20 * SIGMA4_EVAL_LOC
                  */
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V7_LOC), mload(Q1_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V8_LOC), mload(Q2_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V9_LOC), mload(Q3_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V10_LOC), mload(Q4_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V11_LOC), mload(QM_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V12_LOC), mload(QC_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V13_LOC), mload(QARITH_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V14_LOC), mload(QSORT_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V15_LOC), mload(QELLIPTIC_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V16_LOC), mload(QAUX_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V17_LOC), mload(SIGMA1_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V18_LOC), mload(SIGMA2_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V19_LOC), mload(SIGMA3_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V20_LOC), mload(SIGMA4_EVAL_LOC), p),
-                    p
-                )
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V7_LOC), mload(Q1_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V8_LOC), mload(Q2_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V9_LOC), mload(Q3_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V10_LOC), mload(Q4_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V11_LOC), mload(QM_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V12_LOC), mload(QC_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V13_LOC), mload(QARITH_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V14_LOC), mload(QSORT_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V15_LOC), mload(QELLIPTIC_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V16_LOC), mload(QAUX_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V17_LOC), mload(SIGMA1_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V18_LOC), mload(SIGMA2_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V19_LOC), mload(SIGMA3_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V20_LOC), mload(SIGMA4_EVAL_LOC), p), p)
 
                 /**
                  * batch_evaluation += v21 * (table1(zw) * u + table1(z))
@@ -3151,83 +2562,51 @@ abstract contract BaseUltraVerifier {
                  * batch_evaluation += v29 * id4_eval
                  * batch_evaluation += quotient_eval
                  */
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V21_LOC),
-                        addmod(
-                            mulmod(mload(TABLE1_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(TABLE1_EVAL_LOC),
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V21_LOC),
+                            addmod(mulmod(mload(TABLE1_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(TABLE1_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V22_LOC),
-                        addmod(
-                            mulmod(mload(TABLE2_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(TABLE2_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V22_LOC),
+                            addmod(mulmod(mload(TABLE2_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(TABLE2_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V23_LOC),
-                        addmod(
-                            mulmod(mload(TABLE3_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(TABLE3_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V23_LOC),
+                            addmod(mulmod(mload(TABLE3_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(TABLE3_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(
-                        mload(C_V24_LOC),
-                        addmod(
-                            mulmod(mload(TABLE4_OMEGA_EVAL_LOC), mload(C_U_LOC), p),
-                            mload(TABLE4_EVAL_LOC),
+                    )
+                batch_evaluation :=
+                    addmod(
+                        batch_evaluation,
+                        mulmod(
+                            mload(C_V24_LOC),
+                            addmod(mulmod(mload(TABLE4_OMEGA_EVAL_LOC), mload(C_U_LOC), p), mload(TABLE4_EVAL_LOC), p),
                             p
                         ),
                         p
-                    ),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V25_LOC), mload(TABLE_TYPE_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V26_LOC), mload(ID1_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V27_LOC), mload(ID2_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V28_LOC), mload(ID3_EVAL_LOC), p),
-                    p
-                )
-                batch_evaluation := addmod(
-                    batch_evaluation,
-                    mulmod(mload(C_V29_LOC), mload(ID4_EVAL_LOC), p),
-                    p
-                )
+                    )
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V25_LOC), mload(TABLE_TYPE_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V26_LOC), mload(ID1_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V27_LOC), mload(ID2_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V28_LOC), mload(ID3_EVAL_LOC), p), p)
+                batch_evaluation := addmod(batch_evaluation, mulmod(mload(C_V29_LOC), mload(ID4_EVAL_LOC), p), p)
                 batch_evaluation := addmod(batch_evaluation, mload(QUOTIENT_EVAL_LOC), p)
 
                 mstore(0x00, 0x01) // [1].x
@@ -3236,10 +2615,7 @@ abstract contract BaseUltraVerifier {
                 // accumulator_2 = -[1].(batch_evaluation)
                 success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
                 // accumulator = accumulator + accumulator_2
-                success := and(
-                    success,
-                    staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-                )
+                success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
                 if iszero(success) {
                     mstore(0x0, OPENING_COMMITMENT_FAILED_SELECTOR)
@@ -3270,10 +2646,7 @@ abstract contract BaseUltraVerifier {
                 mstore(0x40, zeta)
                 success := staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40)
                 // accumulator = accumulator + accumulator_2
-                success := and(
-                    success,
-                    staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40)
-                )
+                success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, ACCUMULATOR_X_LOC, 0x40))
 
                 // VALIDATE PI_Z_OMEGA
                 {
@@ -3292,10 +2665,7 @@ abstract contract BaseUltraVerifier {
                 // accumulator_2 = u.zeta.omega.[PI_Z_OMEGA]
                 success := and(success, staticcall(gas(), 7, 0x00, 0x60, ACCUMULATOR2_X_LOC, 0x40))
                 // PAIRING_RHS = accumulator + accumulator_2
-                success := and(
-                    success,
-                    staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, PAIRING_RHS_X_LOC, 0x40)
-                )
+                success := and(success, staticcall(gas(), 6, ACCUMULATOR_X_LOC, 0x80, PAIRING_RHS_X_LOC, 0x40))
 
                 mstore(0x00, mload(PI_Z_X_LOC))
                 mstore(0x20, mload(PI_Z_Y_LOC))
@@ -3346,18 +2716,12 @@ abstract contract BaseUltraVerifier {
                     // compute u.u.[recursiveP1] + rhs and write into rhs
                     mstore(0xa0, mload(PAIRING_RHS_X_LOC))
                     mstore(0xc0, mload(PAIRING_RHS_Y_LOC))
-                    success := and(
-                        success,
-                        staticcall(gas(), 6, 0x60, 0x80, PAIRING_RHS_X_LOC, 0x40)
-                    )
+                    success := and(success, staticcall(gas(), 6, 0x60, 0x80, PAIRING_RHS_X_LOC, 0x40))
 
                     // compute u.u.[recursiveP2] + lhs and write into lhs
                     mstore(0x40, mload(PAIRING_LHS_X_LOC))
                     mstore(0x60, mload(PAIRING_LHS_Y_LOC))
-                    success := and(
-                        success,
-                        staticcall(gas(), 6, 0x00, 0x80, PAIRING_LHS_X_LOC, 0x40)
-                    )
+                    success := and(success, staticcall(gas(), 6, 0x00, 0x80, PAIRING_LHS_X_LOC, 0x40))
                 }
 
                 if iszero(success) {
@@ -3407,10 +2771,7 @@ contract TD3QueryProofNoirVerifier is BaseUltraVerifier {
         return UltraVerificationKey.verificationKeyHash();
     }
 
-    function loadVerificationKey(
-        uint256 vk,
-        uint256 _omegaInverseLoc
-    ) internal pure virtual override(BaseUltraVerifier) {
+    function loadVerificationKey(uint256 vk, uint256 _omegaInverseLoc) internal pure virtual override(BaseUltraVerifier) {
         UltraVerificationKey.loadVerificationKey(vk, _omegaInverseLoc);
     }
 }
