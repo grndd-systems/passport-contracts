@@ -7,4 +7,3 @@ export const registration2 = "0x0000000000000000000000000000000000000000";
 export const simpleRegistrationName = "SimpleRegistration";
 export const simpleRegistrationSigners = [];
 export const stateKeeper = "0x0000000000000000000000000000000000000000";
-export const registrationSMT = "0x0000000000000000000000000000000000000000"; // Placeholder - SMT logic disabled

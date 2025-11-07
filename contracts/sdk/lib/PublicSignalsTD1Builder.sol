@@ -187,20 +187,6 @@ library PublicSignalsTD1Builder {
     }
 
     /**
-     * @notice Sets the pkIdentityHash (index 11) in the public signals array.
-     * @dev Identity hash that replaces the SMT root in the new circuit version.
-     *      This is the activeIdentity value bound to the passport.
-     * @param dataPointer_ Pointer to the public signals array in memory.
-     * @param pkIdentityHash_ The identity hash value (bytes32 cast to uint256).
-     */
-    function withPkIdentityHash(uint256 dataPointer_, uint256 pkIdentityHash_) internal pure {
-        assembly {
-            // 32 + 12 * 32 = 32 + 384 = 416
-            mstore(add(dataPointer_, 416), pkIdentityHash_)
-        }
-    }
-
-    /**
      * @notice Sets the selector (index 13) in the public signals array.
      * @dev Bitmask indicating which fields are selected to be revealed/checked.
      *      See https://github.com/rarimo/passport-zk-circuits/blob/main/README.md#selector

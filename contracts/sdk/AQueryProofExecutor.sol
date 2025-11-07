@@ -95,13 +95,10 @@ abstract contract AQueryProofExecutor is Initializable {
         _beforeVerify(currentDate_, userPayload_);
 
         uint256 builder_ = _buildPublicSignals(currentDate_, userPayload_);
-        //builder_.withIdStateRoot(registrationRoot_);
 
         uint256[] memory publicSignals_ = PublicSignalsBuilder.buildAsUintArray(builder_);
 
-        bool proofValid = _verifyCircomProof(zkPoints_, publicSignals_);
-
-        if (!proofValid) {
+        if (!_verifyCircomProof(zkPoints_, publicSignals_)) {
             revert InvalidCircomProof(publicSignals_, zkPoints_);
         }
 
@@ -127,9 +124,7 @@ abstract contract AQueryProofExecutor is Initializable {
 
         AExecutorStorage storage $ = _getABuilderStorage();
 
-        bool proofValid = INoirVerifier($.verifier).verify(zkPoints_, publicSignals_);
-
-        if (!proofValid) {
+        if (!INoirVerifier($.verifier).verify(zkPoints_, publicSignals_)) {
             revert InvalidNoirProof(publicSignals_, zkPoints_);
         }
 
@@ -228,12 +223,9 @@ abstract contract AQueryProofExecutor is Initializable {
             )
         );
 
-        if (!success_) {
-            revert FailedToCallVerifyProof();
-        }
+        if (!success_) revert FailedToCallVerifyProof();
 
-        bool result = abi.decode(returnData_, (bool));
-        return result;
+        return abi.decode(returnData_, (bool));
     }
 
     /**
