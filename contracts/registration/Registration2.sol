@@ -6,8 +6,6 @@ import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProo
 import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-import {Groth16VerifierHelper} from "@solarity/solidity-lib/libs/zkp/Groth16VerifierHelper.sol";
-
 import {StateKeeper} from "../state/StateKeeper.sol";
 import {PoseidonSMT} from "../state/PoseidonSMT.sol";
 
@@ -17,7 +15,6 @@ import {ICertificateDispatcher} from "../interfaces/dispatchers/ICertificateDisp
 
 contract Registration2 is Initializable, UUPSUpgradeable {
     using MerkleProof for bytes32[];
-    using Groth16VerifierHelper for address;
 
     bytes32 public constant P_NO_AA = keccak256("P_NO_AA");
     uint256 internal constant _PROOF_SIGNALS_COUNT = 5;
@@ -59,7 +56,6 @@ contract Registration2 is Initializable, UUPSUpgradeable {
     mapping(bytes32 => address) public passportVerifiers;
 
     error InvalidNoirProof(bytes proof, bytes32[] pubSignals);
-    error InvalidCircomProof(Groth16VerifierHelper.ProofPoints proof, uint256[] pubSignals);
 
     modifier onlyValidCertificateRoot(bytes32 certificatesRoot_) {
         _requireValidCertificateRoot(certificatesRoot_);
@@ -130,28 +126,6 @@ contract Registration2 is Initializable, UUPSUpgradeable {
      * @param passport_ the passport info
      * @param zkPoints_ the passport validity ZK proof
      */
-    function register(
-        bytes32 certificatesRoot_,
-        uint256 identityKey_,
-        uint256 dgCommit_,
-        Passport memory passport_,
-        Groth16VerifierHelper.ProofPoints memory zkPoints_
-    ) external virtual {
-        uint256 passportKey_ = _passportValidation(identityKey_, passport_);
-
-        _verifyCircomZKProof(
-            _getPassportVerifier(passport_.zkType),
-            certificatesRoot_,
-            passportKey_,
-            uint256(passport_.passportHash),
-            identityKey_,
-            dgCommit_,
-            zkPoints_
-        );
-
-        stateKeeper.addBond(bytes32(passportKey_), passport_.passportHash, bytes32(identityKey_));
-    }
-
     function registerViaNoir(
         bytes32 certificatesRoot_,
         uint256 identityKey_,
@@ -195,28 +169,6 @@ contract Registration2 is Initializable, UUPSUpgradeable {
      * @param passport_ the passport info
      * @param zkPoints_ the passport validity ZK proof
      */
-    function reissueIdentity(
-        bytes32 certificatesRoot_,
-        uint256 identityKey_,
-        uint256 dgCommit_,
-        Passport memory passport_,
-        Groth16VerifierHelper.ProofPoints memory zkPoints_
-    ) external virtual {
-        uint256 passportKey_ = _passportValidation(identityKey_, passport_);
-
-        _verifyCircomZKProof(
-            _getPassportVerifier(passport_.zkType),
-            certificatesRoot_,
-            passportKey_,
-            uint256(passport_.passportHash),
-            identityKey_,
-            dgCommit_,
-            zkPoints_
-        );
-
-        stateKeeper.reissueBondIdentity(bytes32(passportKey_), bytes32(identityKey_));
-    }
-
     function reissueIdentityViaNoir(
         bytes32 certificatesRoot_,
         uint256 identityKey_,
@@ -328,29 +280,6 @@ contract Registration2 is Initializable, UUPSUpgradeable {
         require(
             dispatcher_.authenticate(challenge_, passport_.signature, passport_.publicKey),
             "Registration: invalid passport authentication"
-        );
-    }
-
-    function _verifyCircomZKProof(
-        address verifier_,
-        bytes32 certificatesRoot_,
-        uint256 passportKey_,
-        uint256 passportHash_,
-        uint256 identityKey_,
-        uint256 dgCommit_,
-        Groth16VerifierHelper.ProofPoints memory zkPoints_
-    ) internal view onlyValidCertificateRoot(certificatesRoot_) {
-        uint256[] memory pubSignals_ = new uint256[](_PROOF_SIGNALS_COUNT);
-
-        pubSignals_[0] = passportKey_; // output
-        pubSignals_[1] = passportHash_; // output
-        pubSignals_[2] = dgCommit_; // output
-        pubSignals_[3] = identityKey_; // output
-        pubSignals_[4] = uint256(certificatesRoot_); // public input
-
-        require(
-            verifier_.verifyProof(zkPoints_, pubSignals_),
-            InvalidCircomProof(zkPoints_, pubSignals_)
         );
     }
 

@@ -23,7 +23,7 @@ import {
   ProofRegisterIdentityLight256Groth16,
   RegisterIdentityLight256,
 } from "@/generated-types/zkit";
-import { Groth16VerifierHelper } from "@/generated-types/ethers/contracts/registration/Registration2";
+import { Groth16VerifierHelper } from "@/generated-types/ethers/contracts/registration/RegistrationSimple";
 
 const treeSize = 80;
 

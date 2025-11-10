@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import {PublicSignalsBuilder} from "./lib/PublicSignalsBuilder.sol";
@@ -12,10 +11,9 @@ import {INoirVerifier} from "../interfaces/verifiers/INoirVerifier.sol";
 /**
  * @title Abstract Query Proof Executor
  * @notice An abstract contract providing a framework for verifying ZK proofs related to user queries,
- * supporting both Circom (Groth16) and Noir systems.
+ * supporting Noir proof system.
  */
 abstract contract AQueryProofExecutor is Initializable {
-    using Strings for uint256;
     using PublicSignalsBuilder for uint256;
 
     // bytes32(uint256(keccak256("rarimo.contract.AQueryProofExecutor")) - 1)
@@ -26,15 +24,7 @@ abstract contract AQueryProofExecutor is Initializable {
         address verifier;
     }
 
-    struct ProofPoints {
-        uint256[2] a;
-        uint256[2][2] b;
-        uint256[2] c;
-    }
-
-    error FailedToCallVerifyProof();
     error InvalidNoirProof(bytes32[] pubSignals, bytes zkPoints);
-    error InvalidCircomProof(uint256[] pubSignals, ProofPoints zkPoints);
 
     function __AQueryProofExecutor_init(address verifier) internal onlyInitializing {
         AExecutorStorage storage $ = _getABuilderStorage();
@@ -82,30 +72,6 @@ abstract contract AQueryProofExecutor is Initializable {
     ) internal view virtual returns (uint256 builder_);
 
     /**
-     * @notice Executes the full ZK proof verification workflow for a Circom (Groth16) proof.
-     * @param currentDate_ The current date (encoded as `yyMMdd`) to be included in the public signals.
-     * @param userPayload_ Encoded application-specific data to be used by hooks and the signal builder.
-     * @param zkPoints_ The Circom Groth16 proof points (`ProofPoints` struct).
-     */
-    function execute(
-        uint256 currentDate_,
-        bytes memory userPayload_,
-        ProofPoints memory zkPoints_
-    ) external {
-        _beforeVerify(currentDate_, userPayload_);
-
-        uint256 builder_ = _buildPublicSignals(currentDate_, userPayload_);
-
-        uint256[] memory publicSignals_ = PublicSignalsBuilder.buildAsUintArray(builder_);
-
-        if (!_verifyCircomProof(zkPoints_, publicSignals_)) {
-            revert InvalidCircomProof(publicSignals_, zkPoints_);
-        }
-
-        _afterVerify(currentDate_, userPayload_);
-    }
-
-    /**
      * @notice Executes the full ZK proof verification workflow for a Noir proof.
      * @param currentDate_ The current date (encoded as `yyMMdd`) to be included in the public signals.
      * @param userPayload_ Encoded application-specific data to be used by hooks and the signal builder.
@@ -126,27 +92,6 @@ abstract contract AQueryProofExecutor is Initializable {
 
         if (!INoirVerifier($.verifier).verify(zkPoints_, publicSignals_)) {
             revert InvalidNoirProof(publicSignals_, zkPoints_);
-        }
-
-        _afterVerify(currentDate_, userPayload_);
-    }
-
-    /**
-     * @notice Executes TD1 ZK proof verification workflow for a Circom (Groth16) proof.
-     */
-    function executeTD1(
-        uint256 currentDate_,
-        bytes memory userPayload_,
-        ProofPoints memory zkPoints_
-    ) external {
-        _beforeVerify(currentDate_, userPayload_);
-
-        uint256 builder_ = _buildPublicSignalsTD1(currentDate_, userPayload_);
-
-        uint256[] memory publicSignals_ = PublicSignalsTD1Builder.buildAsUintArray(builder_);
-
-        if (!_verifyCircomProof(zkPoints_, publicSignals_)) {
-            revert InvalidCircomProof(publicSignals_, zkPoints_);
         }
 
         _afterVerify(currentDate_, userPayload_);
@@ -199,33 +144,6 @@ abstract contract AQueryProofExecutor is Initializable {
 
     function _setVerifier(address verifier_) internal {
         _getABuilderStorage().verifier = verifier_;
-    }
-
-    function _verifyCircomProof(
-        ProofPoints memory zkPoints_,
-        uint256[] memory pubSignals_
-    ) private view returns (bool) {
-        AExecutorStorage storage $ = _getABuilderStorage();
-
-        string memory funcSign_ = string(
-            abi.encodePacked(
-                "verifyProof(uint256[2],uint256[2][2],uint256[2],uint256[",
-                pubSignals_.length.toString(),
-                "])"
-            )
-        );
-
-        /// @dev We have to use abi.encodePacked to encode a dynamic array as a static array (without offset and length)
-        (bool success_, bytes memory returnData_) = $.verifier.staticcall(
-            abi.encodePacked(
-                abi.encodeWithSignature(funcSign_, zkPoints_.a, zkPoints_.b, zkPoints_.c),
-                pubSignals_
-            )
-        );
-
-        if (!success_) revert FailedToCallVerifyProof();
-
-        return abi.decode(returnData_, (bool));
     }
 
     /**
