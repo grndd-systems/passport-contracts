@@ -32,13 +32,7 @@ describe("StateKeeper", () => {
   before("setup", async () => {
     [ADDRESS1, ADDRESS2] = await ethers.getSigners();
 
-    const StateKeeper = await ethers.getContractFactory("StateKeeperMock", {
-      libraries: {
-        PoseidonUnit1L: await (await getPoseidon(1)).getAddress(),
-        PoseidonUnit2L: await (await getPoseidon(2)).getAddress(),
-        PoseidonUnit3L: await (await getPoseidon(3)).getAddress(),
-      },
-    });
+    const StateKeeper = await ethers.getContractFactory("StateKeeperMock");
     const PoseidonSMT = await ethers.getContractFactory("PoseidonSMTMock", {
       libraries: {
         PoseidonUnit2L: await (await getPoseidon(2)).getAddress(),
@@ -95,12 +89,7 @@ describe("StateKeeper", () => {
     const messageServiceMock = await ethers.deployContract("MessageServiceMock");
     await registrationSmt.__SetL1TransitionRootData_init(await messageServiceMock.getAddress(), ethers.ZeroAddress);
 
-    await stateKeeper.__StateKeeper_init(
-      ADDRESS1.address,
-      await registrationSmt.getAddress(),
-      await certificatesSmt.getAddress(),
-      icaoMerkleRoot,
-    );
+    await stateKeeper.__StateKeeper_init(ADDRESS1.address, await certificatesSmt.getAddress(), icaoMerkleRoot);
 
     await reverter.snapshot();
   });
@@ -111,11 +100,11 @@ describe("StateKeeper", () => {
     it("should not be called by non-registrations", async () => {
       await expect(stateKeeper.addCertificate(ZeroHash, 0)).to.be.rejectedWith("StateKeeper: not a registration");
       await expect(stateKeeper.removeCertificate(ZeroHash)).to.be.rejectedWith("StateKeeper: not a registration");
-      await expect(stateKeeper.addBond(ZeroHash, ZeroHash, ZeroHash, 0)).to.be.rejectedWith(
+      await expect(stateKeeper.addBond(ZeroHash, ZeroHash, ZeroHash)).to.be.rejectedWith(
         "StateKeeper: not a registration",
       );
       await expect(stateKeeper.revokeBond(ZeroHash, ZeroHash)).to.be.rejectedWith("StateKeeper: not a registration");
-      await expect(stateKeeper.reissueBondIdentity(ZeroHash, ZeroHash, 0)).to.be.rejectedWith(
+      await expect(stateKeeper.reissueBondIdentity(ZeroHash, ZeroHash)).to.be.rejectedWith(
         "StateKeeper: not a registration",
       );
       await expect(stateKeeper.useSignature(ZeroHash)).to.be.rejectedWith("StateKeeper: not a registration");
@@ -151,20 +140,21 @@ describe("StateKeeper", () => {
       });
     });
 
-    describe("#EvidenceRegistry integration", () => {
-      beforeEach(async () => {
-        await addRegistrations(["First Registration"], [ADDRESS1.address]);
-      });
+    // TODO: This test is disabled because registrationSMT was removed from StateKeeper
+    // describe("#EvidenceRegistry integration", () => {
+    //   beforeEach(async () => {
+    //     await addRegistrations(["First Registration"], [ADDRESS1.address]);
+    //   });
 
-      it("should update the root and store it in the registry", async () => {
-        await stateKeeper.addBond(ZeroHash, ZeroHash, ZeroHash, 0);
+    //   it("should update the root and store it in the registry", async () => {
+    //     await stateKeeper.addBond(ZeroHash, ZeroHash, ZeroHash);
 
-        const registrationRoot = await registrationSmt.getRoot();
-        const expectedKey = Poseidon.hash([BigInt(await registrationSmt.getAddress()), BigInt(registrationRoot)]);
+    //     const registrationRoot = await registrationSmt.getRoot();
+    //     const expectedKey = Poseidon.hash([BigInt(await registrationSmt.getAddress()), BigInt(registrationRoot)]);
 
-        expect(BigInt(await evidenceDB.getValue(ethers.toBeHex(expectedKey)))).to.equal(await time.latest());
-      });
-    });
+    //     expect(BigInt(await evidenceDB.getValue(ethers.toBeHex(expectedKey)))).to.equal(await time.latest());
+    //   });
+    // });
 
     const addRegistrations = async (registrationKeys: string[], registrations: string[]) => {
       const encoder = new ethers.AbiCoder();

@@ -27,7 +27,6 @@ library PublicSignalsBuilder {
         0x3844f6f56a171c93056bdfb3ce2525778ef493f53ef90b0283983867a69d2128;
 
     error InvalidDate(uint256 parsedTimestamp, uint256 currentTimestamp);
-    error InvalidRegistrationRoot(address registrationSMT, bytes32 registrationRoot);
 
     function newPublicSignalsBuilder(
         uint256 selector_,
@@ -137,25 +136,6 @@ library PublicSignalsBuilder {
             mstore(add(dataPointer_, 320), eventId_)
             // 32 + 10 * 32 = 32 + 320 = 352
             mstore(add(dataPointer_, 352), eventData_)
-        }
-    }
-
-    /**
-     * @notice Sets the idStateRoot (index 11) in the public signals array.
-     * @dev Root of the identity registration Merkle tree.
-     * @param dataPointer_ Pointer to the public signals array in memory.
-     * @param idStateRoot_ The Merkle root value.
-     */
-    function withIdStateRoot(uint256 dataPointer_, bytes32 idStateRoot_) internal view {
-        AQueryProofExecutor.AExecutorStorage storage $ = getABuilderStorage();
-
-        if (!IPoseidonSMT($.registrationSMT).isRootValid(idStateRoot_)) {
-            revert InvalidRegistrationRoot($.registrationSMT, idStateRoot_);
-        }
-
-        assembly {
-            // 32 + 11 * 32 = 32 + 352 = 384
-            mstore(add(dataPointer_, 384), idStateRoot_)
         }
     }
 

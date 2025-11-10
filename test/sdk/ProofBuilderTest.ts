@@ -39,20 +39,12 @@ describe("ProofBuilderTest", () => {
     await test.testEquivalencePart2_Name();
     await test.testEquivalencePart3_NationalityCitizenshipSex();
     await test.testEquivalencePart4_Event();
-    await test.testEquivalencePart5_IdStateRoot(MOCKED_ROOT);
     await test.testEquivalencePart6_CurrentDate(await getCurrentDate());
     await test.testEquivalencePart7_TimestampBounds();
     await test.testEquivalencePart8_IdentityCounterBounds();
     await test.testEquivalencePart9_BirthDateBounds();
     await test.testEquivalencePart10_ExpirationDateBounds();
     await test.testEquivalencePart11_CitizenshipMask();
-  });
-
-  it("should revert if trying to set invalid root", async () => {
-    await expect(test.testEquivalencePart5_IdStateRoot(ethers.ZeroHash)).to.be.revertedWithCustomError(
-      test,
-      "InvalidRegistrationRoot",
-    );
   });
 
   it("should revert if trying to set invalid date", async () => {

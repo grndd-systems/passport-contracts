@@ -149,12 +149,7 @@ contract Registration2 is Initializable, UUPSUpgradeable {
             zkPoints_
         );
 
-        stateKeeper.addBond(
-            bytes32(passportKey_),
-            passport_.passportHash,
-            bytes32(identityKey_),
-            dgCommit_
-        );
+        stateKeeper.addBond(bytes32(passportKey_), passport_.passportHash, bytes32(identityKey_));
     }
 
     function registerViaNoir(
@@ -176,12 +171,7 @@ contract Registration2 is Initializable, UUPSUpgradeable {
             zkPoints_
         );
 
-        stateKeeper.addBond(
-            bytes32(passportKey_),
-            passport_.passportHash,
-            bytes32(identityKey_),
-            dgCommit_
-        );
+        stateKeeper.addBond(bytes32(passportKey_), passport_.passportHash, bytes32(identityKey_));
     }
 
     /**
@@ -224,7 +214,7 @@ contract Registration2 is Initializable, UUPSUpgradeable {
             zkPoints_
         );
 
-        stateKeeper.reissueBondIdentity(bytes32(passportKey_), bytes32(identityKey_), dgCommit_);
+        stateKeeper.reissueBondIdentity(bytes32(passportKey_), bytes32(identityKey_));
     }
 
     function reissueIdentityViaNoir(
@@ -246,7 +236,7 @@ contract Registration2 is Initializable, UUPSUpgradeable {
             zkPoints_
         );
 
-        stateKeeper.reissueBondIdentity(bytes32(passportKey_), bytes32(identityKey_), dgCommit_);
+        stateKeeper.reissueBondIdentity(bytes32(passportKey_), bytes32(identityKey_));
     }
 
     /**

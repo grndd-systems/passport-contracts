@@ -146,13 +146,7 @@ describe("Registration2", () => {
     [OWNER, SECOND] = await ethers.getSigners();
     SIGNER = ethers.Wallet.createRandom();
 
-    const StateKeeper = await ethers.getContractFactory("StateKeeperMock", {
-      libraries: {
-        PoseidonUnit1L: await (await getPoseidon(1)).getAddress(),
-        PoseidonUnit2L: await (await getPoseidon(2)).getAddress(),
-        PoseidonUnit3L: await (await getPoseidon(3)).getAddress(),
-      },
-    });
+    const StateKeeper = await ethers.getContractFactory("StateKeeperMock");
     const PoseidonSMT = await ethers.getContractFactory("PoseidonSMTMock", {
       libraries: {
         PoseidonUnit2L: await (await getPoseidon(2)).getAddress(),
@@ -219,12 +213,7 @@ describe("Registration2", () => {
     const messageServiceMock = await ethers.deployContract("MessageServiceMock");
     await registrationSmt.__SetL1TransitionRootData_init(await messageServiceMock.getAddress(), ethers.ZeroAddress);
 
-    await stateKeeper.__StateKeeper_init(
-      OWNER.address,
-      await registrationSmt.getAddress(),
-      await certificatesSmt.getAddress(),
-      icaoMerkleRoot,
-    );
+    await stateKeeper.__StateKeeper_init(OWNER.address, await certificatesSmt.getAddress(), icaoMerkleRoot);
 
     await registration.__Registration_init(await stateKeeper.getAddress());
 

@@ -29,7 +29,7 @@ function privateKey() {
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      initialDate: "2004-01-01",
+      initialDate: "2025-10-11",
     },
     localhost: {
       url: "http://127.0.0.1:8545",

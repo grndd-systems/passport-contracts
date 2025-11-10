@@ -32,13 +32,7 @@ describe("RegistrationSMT", () => {
         PoseidonUnit3L: poseidon3L,
       },
     });
-    const StateKeeper = await ethers.getContractFactory("StateKeeperMock", {
-      libraries: {
-        PoseidonUnit1L: poseidon1L,
-        PoseidonUnit2L: poseidon2L,
-        PoseidonUnit3L: poseidon3L,
-      },
-    });
+    const StateKeeper = await ethers.getContractFactory("StateKeeperMock");
 
     const ProxyFactory = await ethers.getContractFactory("ERC1967Proxy");
 
@@ -58,7 +52,7 @@ describe("RegistrationSMT", () => {
     proxy = await ProxyFactory.deploy(await stateKeeper.getAddress(), "0x");
     stateKeeper = (await ethers.getContractAt("StateKeeperMock", await proxy.getAddress())) as any;
 
-    await stateKeeper.__StateKeeper_init(OWNER.address, ethers.ZeroAddress, ethers.ZeroAddress, ethers.ZeroHash);
+    await stateKeeper.__StateKeeper_init(OWNER.address, ethers.ZeroAddress, ethers.ZeroHash);
 
     await registrationSmt.__PoseidonSMT_init(await stateKeeper.getAddress(), ethers.ZeroAddress, 80);
 
