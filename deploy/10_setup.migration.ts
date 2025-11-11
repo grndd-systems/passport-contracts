@@ -8,7 +8,6 @@ import {
   PNOAADispatcher__factory,
   PRSASHADispatcher__factory,
   CECDSADispatcher__factory,
-  RegistrationSimple__factory,
   NoirRegisterIdentity_1_256_3_4_600_248_1_1496_3_256__factory,
   NoirRegisterIdentity_1_256_3_5_336_248_1_2120_4_256__factory,
   NoirRegisterIdentity_10_256_3_3_576_248_1_1184_5_264__factory,
@@ -206,7 +205,6 @@ export = async (deployer: Deployer) => {
   const config = (await getConfig())!;
   const stateKeeper = await deployer.deployed(StateKeeperMock__factory, "StateKeeper Proxy");
   const registration = await deployer.deployed(Registration2Mock__factory, "Registration2 Proxy");
-  const registrationSimple = await deployer.deployed(RegistrationSimple__factory, "RegistrationSimple Proxy");
 
   // ------------------------ CERTIFICATE ------------------------
 
@@ -974,5 +972,4 @@ export = async (deployer: Deployer) => {
   );
 
   await stateKeeper.mockAddRegistrations([config.registrationName], [await registration.getAddress()]);
-  await stateKeeper.mockAddRegistrations([config.simpleRegistrationName], [await registrationSimple.getAddress()]);
 };

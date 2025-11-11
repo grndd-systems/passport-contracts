@@ -25,7 +25,7 @@ describe("ProofBuilderTest", () => {
       },
     });
 
-    await test.init(await registrationSMTMock.getAddress());
+    await test.init(await registrationSMTMock.getAddress(), await registrationSMTMock.getAddress());
 
     await registrationSMTMock.mockRoot(MOCKED_ROOT);
 

@@ -21,15 +21,20 @@ abstract contract AQueryProofExecutor is Initializable {
         0x3844f6f56a171c93056bdfb3ce2525778ef493f53ef90b0283983867a69d2128;
 
     struct AExecutorStorage {
-        address verifier;
+        address verifierTD3;
+        address verifierTD1;
     }
 
     error InvalidNoirProof(bytes32[] pubSignals, bytes zkPoints);
 
-    function __AQueryProofExecutor_init(address verifier) internal onlyInitializing {
+    function __AQueryProofExecutor_init(
+        address verifierTD3,
+        address verifierTD1
+    ) internal onlyInitializing {
         AExecutorStorage storage $ = _getABuilderStorage();
 
-        $.verifier = verifier;
+        $.verifierTD3 = verifierTD3;
+        $.verifierTD1 = verifierTD1;
     }
 
     /**
@@ -90,7 +95,7 @@ abstract contract AQueryProofExecutor is Initializable {
 
         AExecutorStorage storage $ = _getABuilderStorage();
 
-        if (!INoirVerifier($.verifier).verify(zkPoints_, publicSignals_)) {
+        if (!INoirVerifier($.verifierTD3).verify(zkPoints_, publicSignals_)) {
             revert InvalidNoirProof(publicSignals_, zkPoints_);
         }
 
@@ -113,7 +118,7 @@ abstract contract AQueryProofExecutor is Initializable {
 
         AExecutorStorage storage $ = _getABuilderStorage();
 
-        if (!INoirVerifier($.verifier).verify(zkPoints_, publicSignals_)) {
+        if (!INoirVerifier($.verifierTD1).verify(zkPoints_, publicSignals_)) {
             revert InvalidNoirProof(publicSignals_, zkPoints_);
         }
 
@@ -138,12 +143,20 @@ abstract contract AQueryProofExecutor is Initializable {
         return PublicSignalsBuilder.buildAsBytesArray(builder_);
     }
 
-    function getVerifier() public view returns (address) {
-        return _getABuilderStorage().verifier;
+    function getVerifierTD3() public view returns (address) {
+        return _getABuilderStorage().verifierTD3;
     }
 
-    function _setVerifier(address verifier_) internal {
-        _getABuilderStorage().verifier = verifier_;
+    function getVerifierTD1() public view returns (address) {
+        return _getABuilderStorage().verifierTD1;
+    }
+
+    function _setVerifierTD3(address verifierTD3_) internal {
+        _getABuilderStorage().verifierTD3 = verifierTD3_;
+    }
+
+    function _setVerifierTD1(address verifierTD1_) internal {
+        _getABuilderStorage().verifierTD1 = verifierTD1_;
     }
 
     /**

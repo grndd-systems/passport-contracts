@@ -11,19 +11,13 @@ import {
   deployCECDSADispatcher,
 } from "./helpers";
 
-import { Registration2Mock__factory, RegistrationSimple__factory, StateKeeperMock__factory } from "@ethers-v6";
-
-import { getConfig } from "./config/config";
+import { Registration2Mock__factory, StateKeeperMock__factory } from "@ethers-v6";
 
 export = async (deployer: Deployer) => {
-  const config = (await getConfig())!;
   const stateKeeper = await deployer.deployed(StateKeeperMock__factory, "StateKeeper Proxy");
 
   const registration = await deployProxy(deployer, Registration2Mock__factory, "Registration2");
   await registration.__Registration_init(await stateKeeper.getAddress());
-
-  const registrationSimple = await deployProxy(deployer, RegistrationSimple__factory, "RegistrationSimple");
-  await registrationSimple.__RegistrationSimple_init(await stateKeeper.getAddress(), config.simpleRegistrationSigners);
 
   await deployPVerifiers(deployer);
 
@@ -69,8 +63,5 @@ export = async (deployer: Deployer) => {
   await deployPNOAADispatcher(deployer);
   await deployPECDSASHA12704Dispatcher(deployer);
 
-  Reporter.reportContracts(
-    ["Registration2", `${await registration.getAddress()}`],
-    ["RegistrationSimple", `${await registrationSimple.getAddress()}`],
-  );
+  Reporter.reportContracts(["Registration2", `${await registration.getAddress()}`]);
 };

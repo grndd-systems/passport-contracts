@@ -17,7 +17,7 @@ import {Date2Time} from "../../utils/Date2Time.sol";
  * Detailed documentation: https://github.com/rarimo/passport-zk-circuits-noir/blob/main/query_identity_td1/Readme.md
  */
 library PublicSignalsTD1Builder {
-    uint256 public constant PROOF_SIGNALS_COUNT = 24;
+    uint256 public constant PROOF_SIGNALS_COUNT = 23;
     uint256 public constant ZERO_DATE = 0x303030303030;
 
     error InvalidDate(uint256 parsedTimestamp, uint256 currentTimestamp);
@@ -183,6 +183,22 @@ library PublicSignalsTD1Builder {
             mstore(add(dataPointer_, 352), eventId_)
             // 32 + 11 * 32 = 384
             mstore(add(dataPointer_, 384), eventData_)
+        }
+    }
+
+    /**
+     * @notice Sets the pkIdentityHash (index 11) in the public signals array.
+     * @dev Identity hash that replaces the SMT root in the new circuit 
+     version.
+    *      This is the activeIdentity value bound to the passport.
+    * @param dataPointer_ Pointer to the public signals array in memory.
+    * @param activeIdentity_ The identity hash value (bytes32 cast to 
+    uint256).
+    */
+    function withActiveIdentity(uint256 dataPointer_, uint256 activeIdentity_) internal pure {
+        assembly {
+            // 32 + 11 * 32 = 32 + 352 = 384
+            mstore(add(dataPointer_, 384), activeIdentity_)
         }
     }
 
