@@ -12,8 +12,8 @@ contract ProofBuilderTest is AQueryProofExecutor {
 
     error Mismatch(uint256 iteration, uint256 original, uint256 lib);
 
-    function init(address verifier_) external initializer {
-        __AQueryProofExecutor_init(verifier_);
+    function init(address verifierTD3_, address verifierTD1_) external initializer {
+        __AQueryProofExecutor_init(verifierTD3_, verifierTD1_);
     }
 
     function _buildPublicSignals(uint256, bytes memory) internal pure override returns (uint256) {

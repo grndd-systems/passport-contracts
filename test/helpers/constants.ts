@@ -17,17 +17,6 @@ export enum RegistrationMethodId {
   RemovePassportVerifier,
 }
 
-export enum RegistrationSimpleMethodId {
-  None,
-  UpdateSignerList,
-}
-
-export enum RegistrationSimpleOperationId {
-  None,
-  AddSigner,
-  RemoveSigner,
-}
-
 export enum TSSUpgradeableId {
   MAGIC_ID = 255,
 }
