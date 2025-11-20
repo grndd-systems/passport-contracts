@@ -148,7 +148,7 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
      *      Session keys are long-lived credentials (not temporary) that allow users to authenticate
      *      from specific devices. Users must explicitly call revoke functions to terminate sessions.
      * @param passportKey_ The passport public key hash
-     * @param passportHash_ The passport hash (for first-time registration)
+     * @param passportHash_ The passport hash (for passports without AA)
      * @param sessionKey_ The persistent session key generated on user's device
      */
     function addBond(
