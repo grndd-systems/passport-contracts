@@ -25,10 +25,9 @@ contract KYCRegistry is
     using PublicSignalsBuilder for uint256;
 
     // Selector bitfield:
-    // bit 0 - nullifier reveal
     // bit 12 - passport expiration lowerbound
     // bit 17 - verify citizenship mask as a blacklist
-    uint256 public constant SELECTOR = 0x20001; // 0b100001000000000001
+    uint256 public constant SELECTOR = 0x20000; // 0b100000000000000000
 
     /// @notice Citizenship mask for blocked countries (configurable by owner)
     uint256 public citizenshipMask;
@@ -37,7 +36,6 @@ contract KYCRegistry is
     uint256 public constant MIN_KYC_TERM = 90 days;
 
     struct ZKKYCData {
-        uint256 nullifier;
         bytes32 passportHash; // Stable passport identifier (DG15 hash)
         uint256 minExpirationDate; // Minimum passport expiration date (yyMMdd format)
         uint64 verifiedAt;
@@ -46,26 +44,21 @@ contract KYCRegistry is
     /// @notice StateKeeper contract for passport-identity binding verification
     StateKeeper public stateKeeper;
 
-    /// @notice Mapping from address to ZK-based KYC data
-    mapping(address => ZKKYCData) public zkKycData;
+    /// @notice Mapping from address to passportHash to ZK-based KYC data (supports multiple passports per address)
+    mapping(address => mapping(bytes32 => ZKKYCData)) public zkKycData;
+
+    /// @notice Mapping from address to array of passport hashes (for iteration)
+    mapping(address => bytes32[]) public userPassports;
 
     /// @notice Mapping from passportHash to address (prevents sybil attacks)
-    /// @dev One passport can only be bound to one address, even after identity reissuance
+    /// @dev One passport can only be bound to one address
     mapping(bytes32 => address) public passportHashToAddress;
 
-    /// @notice Mapping from nullifier to used status (prevents double registration)
-    mapping(uint256 => bool) public usedNullifiers;
-
     /// @notice Emitted when ZK proof KYC is verified
-    event ZKKYCVerified(
-        address indexed user,
-        uint256 indexed nullifier,
-        bytes32 indexed passportHash,
-        uint256 timestamp
-    );
+    event ZKKYCVerified(address indexed user, bytes32 indexed passportHash, uint256 timestamp);
 
-    /// @notice Emitted when ZK KYC is revoked
-    event ZKKYCRevoked(address indexed user, uint256 timestamp);
+    /// @notice Emitted when ZK KYC is revoked for a specific passport
+    event ZKKYCRevoked(address indexed user, bytes32 indexed passportHash, uint256 timestamp);
 
     /// @notice Emitted when passport is updated for a verified address
     event PassportUpdated(
@@ -81,11 +74,11 @@ contract KYCRegistry is
     /// @notice Emitted when citizenship mask is updated
     event CitizenshipMaskUpdated(uint256 indexed newMask);
 
-    error NullifierAlreadyUsed(uint256 nullifier);
     error AddressAlreadyVerified(address user);
     error AddressNotVerified(address user);
     error PassportAlreadyBound(bytes32 passportHash, address boundAddress);
-    error NoUpdateRequired();
+    error PassportAlreadyAddedToAddress(bytes32 passportHash, address user);
+    error PassportNotFound(bytes32 passportHash, address user);
     error InsufficientKYCTerm(uint256 provided, uint256 minimum);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -143,19 +136,16 @@ contract KYCRegistry is
 
     /**
      * @notice Called before proof verification to validate the request.
-     * @dev Checks if the nullifier has been used (unless address is updating),
-     *      validates minExpirationDate meets minimum KYC term requirement,
+     * @dev Validates minExpirationDate meets minimum KYC term requirement,
      *      and ensures sybil resistance by checking passport hash binding.
-     *      Allows KYC-verified addresses to update their identity or passport.
+     *      Allows addresses to have multiple passports and update existing ones.
      */
-    function _beforeVerify(uint256 currentDate_, bytes memory userPayload_) internal override {
-        (
-            address user,
-            uint256 nullifier,
-            bytes32 passportHash,
-            uint256 _identityCreationTimestamp,
-            uint256 minExpirationDate
-        ) = abi.decode(userPayload_, (address, uint256, bytes32, uint256, uint256));
+    function _beforeVerify(
+        uint256 currentDate_,
+        bytes memory userPayload_
+    ) internal view override {
+        (address user, bytes32 sessionKey, bytes32 passportHash, uint256 minExpirationDate) = abi
+            .decode(userPayload_, (address, bytes32, bytes32, uint256));
 
         // Convert dates from yyMMdd format to timestamps for comparison
         uint256 currentTimestamp = Date2Time.timestampFromDate(currentDate_);
@@ -167,24 +157,24 @@ contract KYCRegistry is
             revert InsufficientKYCTerm(minExpirationTimestamp - currentTimestamp, MIN_KYC_TERM);
         }
 
-        // VALIDATE PASSPORT → IDENTITY BINDING via StateKeeper
-        (
-            StateKeeper.PassportInfo memory passportInfo,
-            StateKeeper.IdentityInfo memory _identityInfo
-        ) = stateKeeper.getPassportInfo(passportHash);
+        // VALIDATE PASSPORT → SESSION BINDING via StateKeeper
+        StateKeeper.PassportInfo memory passportInfo = stateKeeper.getPassportInfo(passportHash);
 
-        require(passportInfo.activeIdentity != stateKeeper.REVOKED(), "KYC: passport is revoked");
+        // Check if passport has at least one active session
+        require(
+            passportInfo.activeSessionCount > 0,
+            "KYC: passport not registered or all sessions revoked"
+        );
 
-        // Check if passport has an active identity
-        require(passportInfo.activeIdentity != bytes32(0), "KYC: passport not registered");
+        // Verify that the provided session key is bound to this passport
+        StateKeeper.SessionInfo memory sessionInfo = stateKeeper.getSessionInfo(sessionKey);
+        require(
+            sessionInfo.activePassport == passportHash,
+            "KYC: session not bound to this passport"
+        );
 
-        // Verify that the nullifier from proof matches the identity bound to this passport
-        // Note: We can't directly compare nullifier to identityKey here,
-        // but ZK proof will verify that user owns the identity bound to this passport
-        // The proof verification in executeNoir validates nullifier ownership
-
-        // Check if this address already has valid KYC
-        bool hasExistingKYC = zkKycData[user].verifiedAt > 0;
+        // ZK proof will verify that user owns this session
+        // The proof verification validates session ownership through Active Authentication
 
         // SYBIL RESISTANCE: Check if passport is bound to a different address
         address boundAddress = passportHashToAddress[passportHash];
@@ -192,73 +182,32 @@ contract KYCRegistry is
             revert PassportAlreadyBound(passportHash, boundAddress);
         }
 
-        // If address is re-verifying (identity change or passport renewal):
-        // - Allow updates since msg.sender controls the address (has private key)
-        if (hasExistingKYC) {
-            ZKKYCData storage existingData = zkKycData[user];
-
-            // Re-verification only makes sense when passport OR identity changes
-            if (existingData.passportHash == passportHash && nullifier == existingData.nullifier) {
-                revert NoUpdateRequired();
-            }
-
-            // If passport is changing, verify msg.sender to prevent attacks
-            if (existingData.passportHash != passportHash) {
-                require(user == msg.sender, "KYC: only address owner can update passport");
-                delete passportHashToAddress[existingData.passportHash];
-            }
-
-            // If identity changed (new nullifier with same address)
-            if (nullifier != existingData.nullifier) {
-                // Check new nullifier hasn't been used and mark it
-                // IMPORTANT: Do NOT delete old nullifier - nullifiers are permanent
-                if (usedNullifiers[nullifier]) {
-                    revert NullifierAlreadyUsed(nullifier);
-                }
-                usedNullifiers[nullifier] = true;
-            }
-        } else {
-            // New verification: check nullifier hasn't been used
-            if (usedNullifiers[nullifier]) {
-                revert NullifierAlreadyUsed(nullifier);
-            }
-
-            // Mark nullifier as used
-            usedNullifiers[nullifier] = true;
-        }
+        // Verify msg.sender to prevent others from adding passports to this address
+        require(user == msg.sender, "KYC: only address owner can add or update passport");
     }
 
     /**
-     * @notice Called after successful proof verification to bind the identity to the user.
-     * @dev Stores the permanent binding between address, passport, and nullifier.
-     *      Allows:
-     *      - Identity reissuance (new nullifier)
-     *      - Passport renewal (new passportHash) if user controls the address
+     * @notice Called after successful proof verification to bind the passport to the user.
+     * @dev Stores the permanent binding between address and passport.
+     *      Allows adding multiple passports to the same address.
      */
     function _afterVerify(uint256, bytes memory userPayload_) internal override {
-        (
-            address user,
-            uint256 nullifier,
-            bytes32 passportHash,
-            uint256 identityCreationTimestamp,
-            uint256 minExpirationDate
-        ) = abi.decode(userPayload_, (address, uint256, bytes32, uint256, uint256));
+        (address user, bytes32 _sessionKey, bytes32 passportHash, uint256 minExpirationDate) = abi
+            .decode(userPayload_, (address, bytes32, bytes32, uint256));
 
-        // Check if passport is being updated
-        bool isPassportUpdate = zkKycData[user].verifiedAt > 0 &&
-            zkKycData[user].passportHash != passportHash;
+        // Check if this passport is new for this user
+        bool isNewPassport = zkKycData[user][passportHash].verifiedAt == 0;
 
-        if (isPassportUpdate) {
-            bytes32 oldPassportHash = zkKycData[user].passportHash;
-            emit PassportUpdated(user, oldPassportHash, passportHash, block.timestamp);
+        if (isNewPassport) {
+            // Adding a new passport to this address
+            userPassports[user].push(passportHash);
+        } else {
+            // Updating existing passport data (e.g., new expiration date)
+            emit PassportUpdated(user, passportHash, passportHash, block.timestamp);
         }
 
-        // Store/Update ZK KYC information
-        // This allows:
-        // 1. Identity reissuance (new nullifier, same passport)
-        // 2. Passport renewal (new passport, user controls address)
-        zkKycData[user] = ZKKYCData({
-            nullifier: nullifier,
+        // Store/Update ZK KYC information for this specific passport
+        zkKycData[user][passportHash] = ZKKYCData({
             passportHash: passportHash,
             minExpirationDate: minExpirationDate,
             verifiedAt: uint64(block.timestamp)
@@ -268,12 +217,12 @@ contract KYCRegistry is
         // One passport = one address at a time
         passportHashToAddress[passportHash] = user;
 
-        emit ZKKYCVerified(user, nullifier, passportHash, block.timestamp);
+        emit ZKKYCVerified(user, passportHash, block.timestamp);
     }
 
     /**
      * @notice Builds the public signals for ZK proof verification.
-     * @dev Constructs the public signals array including nullifier, timestamp, and current date.
+     * @dev Constructs the public signals array for proof validation.
      *      Validates that passport expiration date >= minExpirationDate.
      *      passportHash is provided by user but validated through the ZK proof.
      */
@@ -281,25 +230,11 @@ contract KYCRegistry is
         uint256 currentDate_,
         bytes memory userPayload_
     ) internal view override returns (uint256 dataPointer_) {
-        (
-            address user,
-            uint256 nullifier,
-            bytes32 passportHash,
-            uint256 identityCreationTimestamp,
-            uint256 minExpirationDate
-        ) = abi.decode(userPayload_, (address, uint256, bytes32, uint256, uint256));
+        (address user, bytes32 sessionKey, bytes32 _passportHash, uint256 minExpirationDate) = abi
+            .decode(userPayload_, (address, bytes32, bytes32, uint256));
 
-        // Determine identity bounds based on whether timestamp is provided
-        uint256 identityCreationTimestampUpperBound = 0;
-        uint256 identityCounterUpperBound = 0;
-
-        if (identityCreationTimestamp > 0) {
-            identityCreationTimestampUpperBound = identityCreationTimestamp;
-            identityCounterUpperBound = 1; // Enforce single registration
-        }
-
-        // Initialize builder with selector (0x1 = nullifier only) and nullifier
-        dataPointer_ = PublicSignalsBuilder.newPublicSignalsBuilder(SELECTOR, nullifier);
+        // Initialize builder with selector
+        dataPointer_ = PublicSignalsBuilder.newPublicSignalsBuilder(SELECTOR, 0);
 
         // Add event ID and data (ties proof to this user and contract)
         uint256 eventId = getEventId(user);
@@ -308,22 +243,13 @@ contract KYCRegistry is
             uint256(uint160(user)) // User address as event data
         );
 
-        // Get the active identity bound to this passport from StateKeeper
-        (
-            StateKeeper.PassportInfo memory passportInfo,
-            StateKeeper.IdentityInfo memory _identityInfo
-        ) = stateKeeper.getPassportInfo(passportHash);
-
-        // Add pkIdentityHash at position [11]
-        dataPointer_.withActiveIdentity(uint256(passportInfo.activeIdentity));
+        // Add session key at position [11]
+        dataPointer_.withActiveSession(uint256(sessionKey));
         // Add current date validation (±1 day)
         dataPointer_.withCurrentDate(currentDate_, 1 days);
 
-        // Add timestamp bounds for identity creation verification
-        dataPointer_.withTimestampLowerboundAndUpperbound(
-            0, // Lower bound: any time in the past
-            identityCreationTimestampUpperBound // Upper bound: must be before creation time
-        );
+        // Add timestamp bounds (not enforced - any time)
+        dataPointer_.withTimestampLowerboundAndUpperbound(0, 0);
 
         // Birth date bounds (not enforced - using ZERO_DATE)
         dataPointer_.withBirthDateLowerboundAndUpperbound(
@@ -331,8 +257,8 @@ contract KYCRegistry is
             PublicSignalsBuilder.ZERO_DATE
         );
 
-        // Add identity counter bounds (prevents multiple registrations if timestamp provided)
-        dataPointer_.withIdentityCounterLowerbound(0, identityCounterUpperBound);
+        // Identity counter bounds (not enforced)
+        dataPointer_.withIdentityCounterLowerbound(0, 0);
 
         // Expiration date bounds (passport must be valid for at least minExpirationDate)
         // minExpirationDate is in yyMMdd format, already validated to be >= currentDate + MIN_KYC_TERM
@@ -356,25 +282,11 @@ contract KYCRegistry is
         uint256 currentDate_,
         bytes memory userPayload_
     ) internal view override returns (uint256 dataPointer_) {
-        (
-            address user,
-            uint256 nullifier,
-            bytes32 passportHash,
-            uint256 identityCreationTimestamp,
-            uint256 minExpirationDate
-        ) = abi.decode(userPayload_, (address, uint256, bytes32, uint256, uint256));
+        (address user, bytes32 sessionKey, bytes32 _passportHash, uint256 minExpirationDate) = abi
+            .decode(userPayload_, (address, bytes32, bytes32, uint256));
 
-        // Determine identity bounds based on whether timestamp is provided
-        uint256 identityCreationTimestampUpperBound = 0;
-        uint256 identityCounterUpperBound = 0;
-
-        if (identityCreationTimestamp > 0) {
-            identityCreationTimestampUpperBound = identityCreationTimestamp;
-            identityCounterUpperBound = 1; // Enforce single registration
-        }
-
-        // Initialize builder with selector (0x1 = nullifier only) and nullifier
-        dataPointer_ = PublicSignalsTD1Builder.newPublicSignalsBuilder(SELECTOR, nullifier);
+        // Initialize builder with selector
+        dataPointer_ = PublicSignalsTD1Builder.newPublicSignalsBuilder(SELECTOR, 0);
 
         // Add event ID and data (ties proof to this user and contract)
         uint256 eventId = getEventId(user);
@@ -384,26 +296,13 @@ contract KYCRegistry is
             uint256(uint160(user)) // User address as event data
         );
 
-        // Get the active identity bound to this passport from StateKeeper
-        (
-            StateKeeper.PassportInfo memory passportInfo,
-            StateKeeper.IdentityInfo memory _identityInfo
-        ) = stateKeeper.getPassportInfo(passportHash);
-
-        // Add pkIdentityHash at position [11]
-        PublicSignalsTD1Builder.withActiveIdentity(
-            dataPointer_,
-            uint256(passportInfo.activeIdentity)
-        );
+        // Add session key at position [11]
+        PublicSignalsTD1Builder.withActiveSession(dataPointer_, uint256(sessionKey));
         // Add current date validation (±1 day)
         PublicSignalsTD1Builder.withCurrentDate(dataPointer_, currentDate_, 1 days);
 
-        // Add timestamp bounds for identity creation verification
-        PublicSignalsTD1Builder.withTimestampLowerboundAndUpperbound(
-            dataPointer_,
-            0, // Lower bound: any time in the past
-            identityCreationTimestampUpperBound // Upper bound: must be before creation time
-        );
+        // Add timestamp bounds (not enforced - any time)
+        PublicSignalsTD1Builder.withTimestampLowerboundAndUpperbound(dataPointer_, 0, 0);
 
         // Birth date bounds (not enforced - using ZERO_DATE)
         PublicSignalsTD1Builder.withBirthDateLowerboundAndUpperbound(
@@ -412,12 +311,8 @@ contract KYCRegistry is
             PublicSignalsTD1Builder.ZERO_DATE
         );
 
-        // Add identity counter bounds (prevents multiple registrations if timestamp provided)
-        PublicSignalsTD1Builder.withIdentityCounterLowerbound(
-            dataPointer_,
-            0,
-            identityCounterUpperBound
-        );
+        // Identity counter bounds (not enforced)
+        PublicSignalsTD1Builder.withIdentityCounterLowerbound(dataPointer_, 0, 0);
 
         // Expiration date bounds (ID card must be valid for at least minExpirationDate)
         // minExpirationDate is in yyMMdd format, already validated to be >= currentDate + MIN_KYC_TERM
@@ -433,37 +328,91 @@ contract KYCRegistry is
     }
 
     /**
-     * @notice Revoke ZK-based KYC for an address (owner only)
+     * @notice Revoke ZK-based KYC for a specific passport
+     * @dev Can be called by either the contract owner or the address owner (user)
      * @param user_ The address to revoke KYC for
+     * @param passportHash_ The passport hash to revoke
      */
-    function revokeZKKYC(address user_) external onlyOwner {
-        if (zkKycData[user_].verifiedAt == 0) {
-            revert AddressNotVerified(user_);
+    function revokeZKKYC(address user_, bytes32 passportHash_) external {
+        // Allow both contract owner and the user themselves to revoke
+        require(
+            msg.sender == owner() || msg.sender == user_,
+            "KYC: only owner or address owner can revoke"
+        );
+
+        if (zkKycData[user_][passportHash_].verifiedAt == 0) {
+            revert PassportNotFound(passportHash_, user_);
         }
 
-        uint256 nullifier = zkKycData[user_].nullifier;
-        bytes32 passportHash = zkKycData[user_].passportHash;
-
         // Clean up all mappings
-        delete zkKycData[user_];
-        delete passportHashToAddress[passportHash];
-        delete usedNullifiers[nullifier];
+        delete zkKycData[user_][passportHash_];
+        delete passportHashToAddress[passportHash_];
 
-        emit ZKKYCRevoked(user_, block.timestamp);
+        // Remove from userPassports array
+        bytes32[] storage passports = userPassports[user_];
+        for (uint256 i = 0; i < passports.length; i++) {
+            if (passports[i] == passportHash_) {
+                // Move last element to this position and pop
+                passports[i] = passports[passports.length - 1];
+                passports.pop();
+                break;
+            }
+        }
+
+        emit ZKKYCRevoked(user_, passportHash_, block.timestamp);
     }
 
     /**
-     * @notice Check if an address has verified ZK-based KYC
+     * @notice Check if an address has verified ZK-based KYC for a specific passport
      * @param user_ The address to check
-     * @return isVerified Whether ZK KYC is verified
-     * @return data The ZK KYC data
+     * @param passportHash_ The passport hash to check
+     * @return isVerified Whether ZK KYC is verified for this passport
+     * @return data The ZK KYC data for this passport
      */
     function getZKKYCStatus(
-        address user_
+        address user_,
+        bytes32 passportHash_
     ) external view returns (bool isVerified, ZKKYCData memory data) {
-        data = zkKycData[user_];
+        data = zkKycData[user_][passportHash_];
         isVerified = data.verifiedAt > 0;
         return (isVerified, data);
+    }
+
+    /**
+     * @notice Get all passport hashes for a user
+     * @param user_ The address to check
+     * @return passportHashes Array of passport hashes associated with this address
+     */
+    function getUserPassports(address user_) external view returns (bytes32[] memory) {
+        return userPassports[user_];
+    }
+
+    /**
+     * @notice Get all ZK KYC data for a user (all passports)
+     * @param user_ The address to check
+     * @return passportHashes Array of passport hashes
+     * @return kycDataArray Array of ZK KYC data for each passport
+     */
+    function getAllZKKYCData(
+        address user_
+    ) external view returns (bytes32[] memory passportHashes, ZKKYCData[] memory kycDataArray) {
+        passportHashes = userPassports[user_];
+        kycDataArray = new ZKKYCData[](passportHashes.length);
+
+        for (uint256 i = 0; i < passportHashes.length; i++) {
+            kycDataArray[i] = zkKycData[user_][passportHashes[i]];
+        }
+
+        return (passportHashes, kycDataArray);
+    }
+
+    /**
+     * @notice Check if a user has any verified passport
+     * @param user_ The address to check
+     * @return hasKYC Whether the user has at least one verified passport
+     */
+    function hasAnyVerifiedKYC(address user_) external view returns (bool) {
+        return userPassports[user_].length > 0;
     }
 
     /**
