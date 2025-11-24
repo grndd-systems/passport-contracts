@@ -163,10 +163,10 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
         PassportInfo storage _passportInfo = _passportInfos[passportKey_];
         SessionInfo storage _sessionInfo = _sessionInfos[sessionKey_];
 
-        // Session can be re-registered if it was revoked
+        // Session key can only be used once - even if revoked, it cannot be reused
         require(
-            _sessionInfo.activePassport == bytes32(0) || _sessionInfo.activePassport == REVOKED,
-            "StateKeeper: session already registered"
+            _sessionInfo.activePassport == bytes32(0),
+            "StateKeeper: session already used"
         );
 
         // Add session to passport's session array
@@ -270,12 +270,10 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
                 // Move last element to this position and pop
                 sessions[i] = sessions[sessions.length - 1];
                 sessions.pop();
+                _passportInfo.activeSessionCount--;
                 break;
             }
         }
-
-        // Decrease active session count
-        _passportInfo.activeSessionCount--;
 
         emit BondRevoked(passportKey_, sessionKey_);
     }
