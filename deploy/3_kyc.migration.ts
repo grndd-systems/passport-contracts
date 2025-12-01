@@ -4,12 +4,14 @@ import { deployProxy } from "./helpers";
 import {
   KYCRegistry__factory,
   StateKeeperMock__factory,
+  Registration2Mock__factory,
   TD3QueryProofNoirVerifier__factory,
   TD1QueryProofNoirVerifier__factory,
 } from "@ethers-v6";
 
 export = async (deployer: Deployer) => {
   const stateKeeper = await deployer.deployed(StateKeeperMock__factory, "StateKeeper Proxy");
+  const registration = await deployer.deployed(Registration2Mock__factory, "Registration2 Proxy");
 
   // Deploy verifiers for passport (TD3) and ID card (TD1)
   const td3Verifier = await deployer.deploy(TD3QueryProofNoirVerifier__factory, {
@@ -27,6 +29,7 @@ export = async (deployer: Deployer) => {
 
   await kyc.initialize(
     await stateKeeper.getAddress(),
+    await registration.getAddress(),
     await td3Verifier.getAddress(),
     await td1Verifier.getAddress(),
     defaultCitizenshipMask

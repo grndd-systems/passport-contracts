@@ -10,6 +10,7 @@ import {PublicSignalsTD1Builder} from "./lib/PublicSignalsTD1Builder.sol";
 import {PoseidonUnit3L} from "../libraries/Poseidon.sol";
 import {StateKeeper} from "../state/StateKeeper.sol";
 import {Date2Time} from "../utils/Date2Time.sol";
+import {Registration2} from "../registration/Registration2.sol";
 /**
  * @title KYC
  * @notice KYC verification contract that binds addresses to passports
@@ -43,6 +44,9 @@ contract KYCRegistry is
 
     /// @notice StateKeeper contract for passport-session binding verification
     StateKeeper public stateKeeper;
+
+    /// @notice Registration2 contract for automatic passport registration
+    Registration2 public registration;
 
     /// @notice Mapping from address to passportKey to ZK-based KYC data (supports multiple passports per address)
     mapping(address => mapping(bytes32 => ZKKYCData)) public zkKycData;
@@ -89,12 +93,14 @@ contract KYCRegistry is
     /**
      * @notice Initialize the contract
      * @param stateKeeper_ Address of the StateKeeper contract
+     * @param registration_ Address of the Registration2 contract
      * @param verifierTD3_ Address of the ZK proof verifier for TD3 passports
      * @param verifierTD1_ Address of the ZK proof verifier for TD1 ID
      * @param citizenshipMask_ Initial citizenship mask for blocked countries
      */
     function initialize(
         address stateKeeper_,
+        address registration_,
         address verifierTD3_,
         address verifierTD1_,
         uint256 citizenshipMask_
@@ -105,8 +111,10 @@ contract KYCRegistry is
         __ReentrancyGuard_init();
 
         require(stateKeeper_ != address(0), "KYC: zero stateKeeper address");
+        require(registration_ != address(0), "KYC: zero registration address");
 
         stateKeeper = StateKeeper(stateKeeper_);
+        registration = Registration2(registration_);
         citizenshipMask = citizenshipMask_;
 
         emit StateKeeperUpdated(stateKeeper_);
@@ -139,13 +147,34 @@ contract KYCRegistry is
      * @dev Validates minExpirationDate meets minimum KYC term requirement,
      *      and ensures sybil resistance by checking passport key binding.
      *      Allows addresses to have multiple passports and update existing ones.
+     *
+     *      If passport is not registered, automatically calls Registration2.registerViaNoir
+     *      using the registration data from extended userPayload.
      */
-    function _beforeVerify(
-        uint256 currentDate_,
-        bytes memory userPayload_
-    ) internal view override {
-        (address user, bytes32 sessionKey, bytes32 passportKey, uint256 minExpirationDate) = abi
-            .decode(userPayload_, (address, bytes32, bytes32, uint256));
+    function _beforeVerify(uint256 currentDate_, bytes memory userPayload_) internal override {
+        // Try to decode extended payload with registration data
+        (
+            address user,
+            bytes32 sessionKey,
+            bytes32 passportKey,
+            uint256 minExpirationDate,
+            bytes32 certificatesRoot,
+            uint256 dgCommit,
+            Registration2.Passport memory passport,
+            bytes memory registrationZkPoints
+        ) = abi.decode(
+                userPayload_,
+                (
+                    address,
+                    bytes32,
+                    bytes32,
+                    uint256,
+                    bytes32,
+                    uint256,
+                    Registration2.Passport,
+                    bytes
+                )
+            );
 
         // Convert dates from yyMMdd format to timestamps for comparison
         uint256 currentTimestamp = Date2Time.timestampFromDate(currentDate_);
@@ -160,11 +189,29 @@ contract KYCRegistry is
         // VALIDATE PASSPORT → SESSION BINDING via StateKeeper
         StateKeeper.PassportInfo memory passportInfo = stateKeeper.getPassportInfo(passportKey);
 
-        // Check if passport has at least one active session
-        require(
-            passportInfo.activeSessionCount > 0,
-            "KYC: passport not registered or all sessions revoked"
-        );
+        // Check if passport needs registration
+        if (passportInfo.activeSessionCount == 0) {
+            // Passport not registered - register it now
+            // registrationZkPoints should be empty bytes if no registration needed
+            require(
+                registrationZkPoints.length > 0,
+                "KYC: passport not registered and no registration proof provided"
+            );
+
+            registration.registerViaNoir(
+                certificatesRoot,
+                uint256(sessionKey),
+                dgCommit,
+                passport,
+                registrationZkPoints
+            );
+
+            // Refresh passport info after registration
+            passportInfo = stateKeeper.getPassportInfo(passportKey);
+        }
+
+        // Verify that passport now has at least one active session
+        require(passportInfo.activeSessionCount > 0, "KYC: passport registration failed");
 
         // Verify that the provided session key is bound to this passport
         StateKeeper.SessionInfo memory sessionInfo = stateKeeper.getSessionInfo(sessionKey);
@@ -192,8 +239,11 @@ contract KYCRegistry is
      *      Allows adding multiple passports to the same address.
      */
     function _afterVerify(uint256, bytes memory userPayload_) internal override {
-        (address user, bytes32 _sessionKey, bytes32 passportKey, uint256 minExpirationDate) = abi
-            .decode(userPayload_, (address, bytes32, bytes32, uint256));
+        // Decode only the fields we need (ignore registration fields)
+        (address user, , bytes32 passportKey, uint256 minExpirationDate) = abi.decode(
+            userPayload_,
+            (address, bytes32, bytes32, uint256)
+        );
 
         // Check if this passport is new for this user
         bool isNewPassport = zkKycData[user][passportKey].verifiedAt == 0;

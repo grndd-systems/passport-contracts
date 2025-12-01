@@ -164,10 +164,7 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
         SessionInfo storage _sessionInfo = _sessionInfos[sessionKey_];
 
         // Session key can only be used once - even if revoked, it cannot be reused
-        require(
-            _sessionInfo.activePassport == bytes32(0),
-            "StateKeeper: session already used"
-        );
+        require(_sessionInfo.activePassport == bytes32(0), "StateKeeper: session already used");
 
         // Add session to passport's session array
         _passportSessions[passportKey_].push(sessionKey_);
