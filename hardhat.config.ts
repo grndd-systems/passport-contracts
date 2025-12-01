@@ -72,6 +72,11 @@ const config: HardhatUserConfig = {
       gasPrice: 0,
       gasMultiplier: 1.2,
     },
+    "eden-testnet": {
+      url: "https://ev-reth-eden-testnet.binarybuilders.services:8545",
+      accounts: privateKey(),
+      gasMultiplier: 1.2,
+    },
   },
   solidity: {
     version: "0.8.28",
@@ -80,7 +85,7 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 200,
       },
-      evmVersion: "london",
+      evmVersion: "cancun", // Prague not yet in Solidity, use Cancun for now
     },
   },
   etherscan: {
@@ -88,6 +93,7 @@ const config: HardhatUserConfig = {
       "rarimo-l2": "abc",
       "rarimo-l2-testnet": "abc",
       "rarimo-beta": "abc",
+      "eden-testnet": "abc",
     },
     customChains: [
       {
@@ -120,6 +126,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://scan.testnet.rarimo.com/api",
           browserURL: "https://scan.testnet.rarimo.com",
+        },
+      },
+      {
+        network: "eden-testnet",
+        chainId: 3735928814,
+        urls: {
+          apiURL: "https://explorer-eden-testnet.binarybuilders.services/api",
+          browserURL: "https://explorer-eden-testnet.binarybuilders.services",
         },
       },
     ],
