@@ -1,11 +1,11 @@
-// Verification Key Hash: 9d54ed033d7252300a62cb37a7860f297ac67d591a13e2844ccdf4a46722743a
+// Verification Key Hash: b3674581b0f7c45a0a5480aec2ee03238e9939594a144eca8dd159cb46adde14
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2022 Aztec
 pragma solidity >=0.8.4;
 
 library UltraVerificationKey {
     function verificationKeyHash() internal pure returns (bytes32) {
-        return 0x9d54ed033d7252300a62cb37a7860f297ac67d591a13e2844ccdf4a46722743a;
+        return 0xb3674581b0f7c45a0a5480aec2ee03238e9939594a144eca8dd159cb46adde14;
     }
 
     function loadVerificationKey(uint256 _vk, uint256 _omegaInverseLoc) internal pure {
