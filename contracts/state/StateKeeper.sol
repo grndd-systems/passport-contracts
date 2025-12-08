@@ -51,9 +51,6 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
         uint64 issueTimestamp; // When this session was created
     }
 
-    // Previously, _owners (type: struct EnumerableSet.AddressSet) from the old AMultiOwnable
-    bytes32[2] private _deprecated;
-
     PoseidonSMT public certificatesSmt;
 
     bytes32 public icaoMasterTreeMerkleRoot;

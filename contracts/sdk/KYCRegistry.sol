@@ -28,13 +28,14 @@ contract KYCRegistry is
     // Selector bitfield:
     // bit 12 - passport expiration lowerbound
     // bit 17 - verify citizenship mask as a blacklist
-    uint256 public constant SELECTOR = 0x21000; // 0b100001000000000000
+    /// @notice Selector bitfield for ZK proof verification (configurable by owner)
+    uint256 public selector;
 
     /// @notice Citizenship mask for blocked countries (configurable by owner)
     uint256 public citizenshipMask;
 
-    // Minimum KYC term - passport must be valid for at least 90 days
-    uint256 public constant MIN_KYC_TERM = 90 days;
+    /// @notice Minimum KYC term - passport must be valid for at least this duration
+    uint256 public minKycTerm;
 
     struct ZKKYCData {
         bytes32 passportKey; // Passport key from StateKeeper (public key hash from DG15)
@@ -58,6 +59,9 @@ contract KYCRegistry is
     /// @dev One passport can only be bound to one address
     mapping(bytes32 => address) public passportKeyToAddress;
 
+    /// @notice Reserved storage space to allow for layout changes in the future.
+    uint256[50] private __gap;
+
     /// @notice Emitted when ZK proof KYC is verified
     event ZKKYCVerified(address indexed user, bytes32 indexed passportKey, uint256 timestamp);
 
@@ -78,6 +82,12 @@ contract KYCRegistry is
     /// @notice Emitted when citizenship mask is updated
     event CitizenshipMaskUpdated(uint256 indexed newMask);
 
+    /// @notice Emitted when selector is updated
+    event SelectorUpdated(uint256 indexed newSelector);
+
+    /// @notice Emitted when minimum KYC term is updated
+    event MinKycTermUpdated(uint256 indexed newMinKycTerm);
+
     error AddressAlreadyVerified(address user);
     error AddressNotVerified(address user);
     error PassportAlreadyBound(bytes32 passportKey, address boundAddress);
@@ -97,13 +107,17 @@ contract KYCRegistry is
      * @param verifierTD3_ Address of the ZK proof verifier for TD3 passports
      * @param verifierTD1_ Address of the ZK proof verifier for TD1 ID
      * @param citizenshipMask_ Initial citizenship mask for blocked countries
+     * @param selector_ Initial selector bitfield for ZK proof verification
+     * @param minKycTerm_ Initial minimum KYC term (in seconds)
      */
     function initialize(
         address stateKeeper_,
         address registration_,
         address verifierTD3_,
         address verifierTD1_,
-        uint256 citizenshipMask_
+        uint256 citizenshipMask_,
+        uint256 selector_,
+        uint256 minKycTerm_
     ) public initializer {
         __AQueryProofExecutor_init(verifierTD3_, verifierTD1_);
         __UUPSUpgradeable_init();
@@ -112,13 +126,19 @@ contract KYCRegistry is
 
         require(stateKeeper_ != address(0), "KYC: zero stateKeeper address");
         require(registration_ != address(0), "KYC: zero registration address");
+        require(selector_ != 0, "KYC: selector cannot be zero");
+        require(minKycTerm_ != 0, "KYC: minKycTerm cannot be zero");
 
         stateKeeper = StateKeeper(stateKeeper_);
         registration = Registration2(registration_);
         citizenshipMask = citizenshipMask_;
+        selector = selector_;
+        minKycTerm = minKycTerm_;
 
         emit StateKeeperUpdated(stateKeeper_);
         emit CitizenshipMaskUpdated(citizenshipMask_);
+        emit SelectorUpdated(selector_);
+        emit MinKycTermUpdated(minKycTerm_);
     }
 
     /**
@@ -140,12 +160,32 @@ contract KYCRegistry is
         emit CitizenshipMaskUpdated(citizenshipMask_);
     }
 
+    /**
+     * @notice Update the selector bitfield
+     * @param selector_ New selector bitfield for ZK proof verification
+     */
+    function updateSelector(uint256 selector_) external onlyOwner {
+        require(selector_ != 0, "KYC: selector cannot be zero");
+        selector = selector_;
+        emit SelectorUpdated(selector_);
+    }
+
+    /**
+     * @notice Update the minimum KYC term
+     * @param minKycTerm_ New minimum KYC term (in seconds)
+     */
+    function updateMinKycTerm(uint256 minKycTerm_) external onlyOwner {
+        require(minKycTerm_ != 0, "KYC: minKycTerm cannot be zero");
+        minKycTerm = minKycTerm_;
+        emit MinKycTermUpdated(minKycTerm_);
+    }
+
     // ============ ZK Proof-based KYC Functions (SDK) ============
 
     /**
      * @notice Called before proof verification to validate the request.
      * @dev Validates minExpirationDate meets minimum KYC term requirement,
-     *      and ensures sybil resistance by checking passport key binding.
+     *      and ensures passport ownership by checking passport key binding.
      *      Allows addresses to have multiple passports and update existing ones.
      *
      *      If passport is not registered, automatically calls Registration2.registerViaNoir
@@ -179,9 +219,9 @@ contract KYCRegistry is
         // Convert dates from yyMMdd format to timestamps for comparison
         uint256 currentTimestamp = Date2Time.timestampFromDate(currentDate_);
         uint256 minExpirationTimestamp = Date2Time.timestampFromDate(minExpirationDate);
-        uint256 requiredMinTimestamp = currentTimestamp + MIN_KYC_TERM;
+        uint256 requiredMinTimestamp = currentTimestamp + minKycTerm;
 
-        // Validate minExpirationDate >= currentDate + MIN_KYC_TERM
+        // Validate minExpirationDate >= currentDate + minKycTerm
         if (minExpirationTimestamp < requiredMinTimestamp) {
             revert InsufficientKYCTerm(minExpirationTimestamp, requiredMinTimestamp);
         }
@@ -223,7 +263,7 @@ contract KYCRegistry is
         // ZK proof will verify that user owns this session
         // The proof verification validates session ownership through Active Authentication
 
-        // SYBIL RESISTANCE: Check if passport is bound to a different address
+        // PASSPORT OWNERSHIP: Check if passport is bound to a different address
         address boundAddress = passportKeyToAddress[passportKey];
         if (boundAddress != address(0) && boundAddress != user) {
             revert PassportAlreadyBound(passportKey, boundAddress);
@@ -283,7 +323,7 @@ contract KYCRegistry is
             .decode(userPayload_, (address, bytes32, bytes32, uint256));
 
         // Initialize builder with selector
-        dataPointer_ = PublicSignalsBuilder.newPublicSignalsBuilder(SELECTOR, 0);
+        dataPointer_ = PublicSignalsBuilder.newPublicSignalsBuilder(selector, 0);
 
         // Add event ID and data (ties proof to this user and contract)
         uint256 eventId = getEventId(user);
@@ -335,7 +375,7 @@ contract KYCRegistry is
             .decode(userPayload_, (address, bytes32, bytes32, uint256));
 
         // Initialize builder with selector
-        dataPointer_ = PublicSignalsTD1Builder.newPublicSignalsBuilder(SELECTOR, 0);
+        dataPointer_ = PublicSignalsTD1Builder.newPublicSignalsBuilder(selector, 0);
 
         // Add event ID and data (ties proof to this user and contract)
         uint256 eventId = getEventId(user);
