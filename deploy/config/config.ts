@@ -25,5 +25,5 @@ export async function getConfig() {
     return await import("./eden-testnet");
   }
 
-  throw new Error(`Config for network ${hre.network.name} is not specified`);
+  throw new Error(`Config for network the ${hre.network.name} is not specified`);
 }
