@@ -85,7 +85,7 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 200,
       },
-      evmVersion: "cancun", // Prague not yet in Solidity, use Cancun for now
+      evmVersion: "cancun", // TODO: Prague not yet in Solidity, use Cancun for now
     },
   },
   etherscan: {
