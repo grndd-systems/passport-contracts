@@ -13,6 +13,23 @@ import {INoirVerifier} from "../interfaces/verifiers/INoirVerifier.sol";
 import {IPassportDispatcher} from "../interfaces/dispatchers/IPassportDispatcher.sol";
 import {ICertificateDispatcher} from "../interfaces/dispatchers/ICertificateDispatcher.sol";
 
+/**
+ * @title Registration2
+ * @notice Passport registration contract with support for persistent session keys
+ * @dev This contract manages passport registration and session-based authentication.
+ *
+ *      SESSION KEY CONCEPT:
+ *      Unlike traditional temporary session keys, this system uses persistent session keys
+ *      that remain active indefinitely until explicitly revoked by the user. Each device
+ *      generates its own unique session key for passport Active Authentication.
+ *
+ *      Key features:
+ *      - Session keys are long-lived (persistent) credentials
+ *      - Users can have multiple active sessions (one per device)
+ *      - Sessions remain valid until user explicitly revokes them
+ *      - Supports "sign out on all other devices" functionality
+ *      - Each session is independently revocable
+ */
 contract Registration2 is Initializable, UUPSUpgradeable {
     using MerkleProof for bytes32[];
 
@@ -119,76 +136,78 @@ contract Registration2 is Initializable, UUPSUpgradeable {
     }
 
     /**
-     * @notice Registers the user passport <> user identity bond in the registration SMT.
+     * @notice Registers the user passport <> user session bond in the registration SMT.
+     * @dev Creates a persistent session key binding that remains active until explicitly revoked.
+     *      This is NOT a temporary session - it persists indefinitely until the user calls
+     *      revoke, revokeOtherSessions, or revokeAllSessions.
      * @param certificatesRoot_ the root of certificates MT (prevents accidental frontrunning)
-     * @param identityKey_ the hash of the public key of an identity
-     * @param dgCommit_ the commitment of DG1 (is used for identity query proof)
+     * @param sessionKey_ the persistent session key (hash of device's public key)
+     * @param dgCommit_ the commitment of DG1 (is used for session query proof)
      * @param passport_ the passport info
      * @param zkPoints_ the passport validity ZK proof
      */
     function registerViaNoir(
         bytes32 certificatesRoot_,
-        uint256 identityKey_,
+        uint256 sessionKey_,
         uint256 dgCommit_,
         Passport memory passport_,
         bytes memory zkPoints_
     ) external virtual {
-        uint256 passportKey_ = _passportValidation(identityKey_, passport_);
+        uint256 passportKey_ = _passportValidation(sessionKey_, passport_);
 
         _verifyNoirZKProof(
             _getPassportVerifier(passport_.zkType),
             certificatesRoot_,
             passportKey_,
             uint256(passport_.passportHash),
-            identityKey_,
+            sessionKey_,
             dgCommit_,
             zkPoints_
         );
 
-        stateKeeper.addBond(bytes32(passportKey_), passport_.passportHash, bytes32(identityKey_));
+        stateKeeper.addBond(bytes32(passportKey_), passport_.passportHash, bytes32(sessionKey_));
     }
 
     /**
-     * @notice Revokes the passport <> identity bond (doesn't actually remove it, sets as "revoked")
-     * @param identityKey_ the hash of the public key of an identity
+     * @notice Revokes the passport <> session bond (doesn't actually remove it, sets as "revoked")
+     * @param sessionKey_ the hash of the public key of a session
      * @param passport_ the passport info
      */
-    function revoke(uint256 identityKey_, Passport memory passport_) external virtual {
+    function revoke(uint256 sessionKey_, Passport memory passport_) external virtual {
         require(passport_.dataType != P_NO_AA, "Registration: can't revoke without AA");
 
-        uint256 passportKey_ = _passportValidation(identityKey_, passport_);
+        uint256 passportKey_ = _passportValidation(sessionKey_, passport_);
 
-        stateKeeper.revokeBond(bytes32(passportKey_), bytes32(identityKey_));
+        stateKeeper.revokeBond(bytes32(passportKey_), bytes32(sessionKey_));
     }
 
     /**
-     * @notice Reissues the passport <> identity bond by migration to a new identity. The previous bond must be revoked
-     * @param certificatesRoot_ the root of certificates MT (prevents accidental frontrunning)
-     * @param identityKey_ the hash of the public key of an identity
-     * @param dgCommit_ the commitment of DG1 (is used for identity query proof)
+     * @notice Revokes all other sessions except the current one ("sign out on all other devices")
+     * @param keepSessionKey_ the session to keep active
      * @param passport_ the passport info
-     * @param zkPoints_ the passport validity ZK proof
      */
-    function reissueIdentityViaNoir(
-        bytes32 certificatesRoot_,
-        uint256 identityKey_,
-        uint256 dgCommit_,
-        Passport memory passport_,
-        bytes memory zkPoints_
+    function revokeOtherSessions(
+        uint256 keepSessionKey_,
+        Passport memory passport_
     ) external virtual {
-        uint256 passportKey_ = _passportValidation(identityKey_, passport_);
+        require(passport_.dataType != P_NO_AA, "Registration: can't revoke without AA");
 
-        _verifyNoirZKProof(
-            _getPassportVerifier(passport_.zkType),
-            certificatesRoot_,
-            passportKey_,
-            uint256(passport_.passportHash),
-            identityKey_,
-            dgCommit_,
-            zkPoints_
-        );
+        uint256 passportKey_ = _passportValidation(keepSessionKey_, passport_);
 
-        stateKeeper.reissueBondIdentity(bytes32(passportKey_), bytes32(identityKey_));
+        stateKeeper.revokeBondsExcept(bytes32(passportKey_), bytes32(keepSessionKey_));
+    }
+
+    /**
+     * @notice Revokes all sessions for a passport
+     * @param sessionKey_ the hash of the public key of a session (used for authentication)
+     * @param passport_ the passport info
+     */
+    function revokeAllSessions(uint256 sessionKey_, Passport memory passport_) external virtual {
+        require(passport_.dataType != P_NO_AA, "Registration: can't revoke without AA");
+
+        uint256 passportKey_ = _passportValidation(sessionKey_, passport_);
+
+        stateKeeper.revokeAllBonds(bytes32(passportKey_));
     }
 
     /**
@@ -288,7 +307,7 @@ contract Registration2 is Initializable, UUPSUpgradeable {
         bytes32 certificatesRoot_,
         uint256 passportKey_,
         uint256 passportHash_,
-        uint256 identityKey_,
+        uint256 sessionKey_,
         uint256 dgCommit_,
         bytes memory zkPoints_
     ) internal view onlyValidCertificateRoot(certificatesRoot_) {
@@ -297,7 +316,7 @@ contract Registration2 is Initializable, UUPSUpgradeable {
         pubSignals_[0] = bytes32(passportKey_); // output
         pubSignals_[1] = bytes32(passportHash_); // output
         pubSignals_[2] = bytes32(dgCommit_); // output
-        pubSignals_[3] = bytes32(identityKey_); // output
+        pubSignals_[3] = bytes32(sessionKey_); // output
         pubSignals_[4] = certificatesRoot_; // public input
 
         require(
@@ -358,13 +377,13 @@ contract Registration2 is Initializable, UUPSUpgradeable {
     }
 
     function _passportValidation(
-        uint256 identityKey_,
+        uint256 sessionKey_,
         Passport memory passport_
     ) internal returns (uint256 passportKey_) {
-        require(identityKey_ > 0, "Registration: identity can not be zero");
+        require(sessionKey_ > 0, "Registration: session can not be zero");
 
         IPassportDispatcher dispatcher_ = _getPassportDispatcher(passport_.dataType);
-        bytes memory challenge_ = dispatcher_.getPassportChallenge(identityKey_);
+        bytes memory challenge_ = dispatcher_.getPassportChallenge(sessionKey_);
         uint256 passportKey_ = dispatcher_.getPassportKey(passport_.publicKey);
 
         _useSignature(passport_.signature);

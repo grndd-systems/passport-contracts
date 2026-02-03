@@ -18,7 +18,6 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
     using TypeCaster for address;
     using DynamicSet for DynamicSet.StringSet;
 
-    string public constant ICAO_PREFIX = "Rarimo CSCA root";
     bytes32 public constant REVOKED = keccak256("REVOKED");
     bytes32 public constant USED = keccak256("USED");
 
@@ -34,17 +33,23 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
     }
 
     struct PassportInfo {
-        bytes32 activeIdentity;
-        uint64 identityReissueCounter;
+        uint64 activeSessionCount; // Number of active sessions bound to this passport
     }
 
-    struct IdentityInfo {
-        bytes32 activePassport;
-        uint64 issueTimestamp;
+    /**
+     * @notice Session information for a persistent session key
+     * @dev A session key is a long-lived cryptographic key generated on a user's device
+     *      for passport Active Authentication. Unlike traditional temporary session keys,
+     *      these persist indefinitely until explicitly revoked by the user.
+     *      Each device generates its own unique session key, allowing users to:
+     *      - Have multiple active devices simultaneously
+     *      - Revoke specific devices without affecting others
+     *      - Sign out from all other devices while keeping current one active
+     */
+    struct SessionInfo {
+        bytes32 activePassport; // Associated passport key (or REVOKED constant if revoked)
+        uint64 issueTimestamp; // When this session was created
     }
-
-    // Previously, _owners (type: struct EnumerableSet.AddressSet) from the old AMultiOwnable
-    bytes32[2] private _deprecated;
 
     PoseidonSMT public certificatesSmt;
 
@@ -55,7 +60,10 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
     mapping(bytes32 => CertificateInfo) internal _certificateInfos;
 
     mapping(bytes32 => PassportInfo) internal _passportInfos;
-    mapping(bytes32 => IdentityInfo) internal _identityInfos;
+    mapping(bytes32 => SessionInfo) internal _sessionInfos;
+
+    /// @notice Mapping from passportKey to array of session keys (supports multiple sessions per passport)
+    mapping(bytes32 => bytes32[]) internal _passportSessions;
 
     DynamicSet.StringSet internal _registrationKeys;
     mapping(string => address) internal _registrations;
@@ -63,9 +71,9 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
 
     event CertificateAdded(bytes32 certificateKey, uint256 expirationTimestamp);
     event CertificateRemoved(bytes32 certificateKey);
-    event BondAdded(bytes32 passportKey, bytes32 identityKey);
-    event BondRevoked(bytes32 passportKey, bytes32 identityKey);
-    event BondIdentityReissued(bytes32 passportKey, bytes32 identityKey);
+    event BondAdded(bytes32 passportKey, bytes32 sessionKey);
+    event BondRevoked(bytes32 passportKey, bytes32 sessionKey);
+    event BondSessionReissued(bytes32 passportKey, bytes32 sessionKey);
 
     modifier onlyRegistration() {
         _onlyRegistration();
@@ -132,96 +140,136 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
     }
 
     /**
-     * @notice Adds new identity bond
+     * @notice Adds new session bond to a passport (supports multiple sessions per passport)
+     * @dev Creates a persistent session key binding that remains active until explicitly revoked.
+     *      Session keys are long-lived credentials (not temporary) that allow users to authenticate
+     *      from specific devices. Users must explicitly call revoke functions to terminate sessions.
+     * @param passportKey_ The passport public key hash
+     * @param passportHash_ The passport hash (for passports without AA)
+     * @param sessionKey_ The persistent session key generated on user's device
      */
     function addBond(
         bytes32 passportKey_,
         bytes32 passportHash_,
-        bytes32 identityKey_
+        bytes32 sessionKey_
     ) external virtual onlyRegistration {
         if (passportKey_ == bytes32(0)) {
             (passportHash_, passportKey_) = (passportKey_, passportHash_);
         }
 
         PassportInfo storage _passportInfo = _passportInfos[passportKey_];
-        IdentityInfo storage _identityInfo = _identityInfos[identityKey_];
+        SessionInfo storage _sessionInfo = _sessionInfos[sessionKey_];
 
-        require(
-            _passportInfo.activeIdentity == bytes32(0),
-            "StateKeeper: passport already registered"
-        );
-        require(
-            _identityInfo.activePassport == bytes32(0),
-            "StateKeeper: identity already registered"
-        );
+        // Session key can only be used once - even if revoked, it cannot be reused
+        require(_sessionInfo.activePassport == bytes32(0), "StateKeeper: session already used");
 
-        if (passportKey_ != bytes32(0) && passportHash_ != bytes32(0)) {
-            PassportInfo storage _passportHashInfo = _passportInfos[passportHash_];
+        // Add session to passport's session array
+        _passportSessions[passportKey_].push(sessionKey_);
 
-            require(
-                _passportHashInfo.activeIdentity == bytes32(0),
-                "StateKeeper: passport hash already registered"
-            );
+        // Update counter
+        _passportInfo.activeSessionCount++;
 
-            _passportHashInfo.activeIdentity = USED;
-        }
+        // Set session info
+        _sessionInfo.activePassport = passportKey_;
+        _sessionInfo.issueTimestamp = uint64(block.timestamp);
 
-        _passportInfo.activeIdentity = identityKey_;
-
-        _identityInfo.activePassport = passportKey_;
-        _identityInfo.issueTimestamp = uint64(block.timestamp);
-
-        emit BondAdded(passportKey_, identityKey_);
+        emit BondAdded(passportKey_, sessionKey_);
     }
 
     /**
-     * @notice Revoked identity bond
+     * @notice Revokes a specific session bond and removes it from the passport's session array
      */
     function revokeBond(
         bytes32 passportKey_,
-        bytes32 identityKey_
+        bytes32 sessionKey_
     ) external virtual onlyRegistration {
-        PassportInfo storage _passportInfo = _passportInfos[passportKey_];
-        IdentityInfo storage _identityInfo = _identityInfos[identityKey_];
-
-        require(
-            _passportInfo.activeIdentity == bytes32(identityKey_),
-            "StateKeeper: passport already revoked"
-        );
-        require(
-            _identityInfo.activePassport == bytes32(passportKey_),
-            "StateKeeper: identity already revoked"
-        );
-
-        _passportInfo.activeIdentity = REVOKED;
-        _identityInfo.activePassport = REVOKED;
-
-        emit BondRevoked(passportKey_, identityKey_);
+        _revokeSingleBond(passportKey_, sessionKey_);
     }
 
     /**
-     * @notice Reissues identity bond
+     * @notice Revokes multiple session bonds (batch operation)
+     * @param passportKey_ The passport key
+     * @param sessionKeys_ Array of session keys to revoke
      */
-    function reissueBondIdentity(
+    function revokeBonds(
         bytes32 passportKey_,
-        bytes32 identityKey_
+        bytes32[] calldata sessionKeys_
+    ) external virtual onlyRegistration {
+        require(sessionKeys_.length > 0, "StateKeeper: empty session array");
+
+        for (uint256 i = 0; i < sessionKeys_.length; i++) {
+            _revokeSingleBond(passportKey_, sessionKeys_[i]);
+        }
+    }
+
+    /**
+     * @notice Revokes all sessions except one (useful for "sign out on all other devices")
+     * @param passportKey_ The passport key
+     * @param keepSessionKey_ The session to keep active
+     */
+    function revokeBondsExcept(
+        bytes32 passportKey_,
+        bytes32 keepSessionKey_
     ) external virtual onlyRegistration {
         PassportInfo storage _passportInfo = _passportInfos[passportKey_];
-        IdentityInfo storage _identityInfo = _identityInfos[identityKey_];
+        SessionInfo storage _keepSessionInfo = _sessionInfos[keepSessionKey_];
 
-        require(_passportInfo.activeIdentity == REVOKED, "StateKeeper: passport is not revoked");
         require(
-            _identityInfo.activePassport == bytes32(0),
-            "StateKeeper: identity already registered"
+            _keepSessionInfo.activePassport == passportKey_,
+            "StateKeeper: keepSession not bound to this passport"
         );
 
-        _passportInfo.activeIdentity = bytes32(identityKey_);
-        ++_passportInfo.identityReissueCounter;
+        bytes32[] memory sessions = _passportSessions[passportKey_];
 
-        _identityInfo.activePassport = bytes32(passportKey_);
-        _identityInfo.issueTimestamp = uint64(block.timestamp);
+        // Revoke all sessions except the one to keep
+        for (uint256 i = 0; i < sessions.length; i++) {
+            if (sessions[i] != keepSessionKey_) {
+                _revokeSingleBond(passportKey_, sessions[i]);
+            }
+        }
+    }
 
-        emit BondIdentityReissued(passportKey_, identityKey_);
+    /**
+     * @notice Revokes all session bonds for a passport
+     * @param passportKey_ The passport key
+     */
+    function revokeAllBonds(bytes32 passportKey_) external virtual onlyRegistration {
+        bytes32[] memory sessions = _passportSessions[passportKey_];
+
+        for (uint256 i = 0; i < sessions.length; i++) {
+            _revokeSingleBond(passportKey_, sessions[i]);
+        }
+    }
+
+    /**
+     * @notice Internal function to revoke a single session bond
+     */
+    function _revokeSingleBond(bytes32 passportKey_, bytes32 sessionKey_) internal {
+        PassportInfo storage _passportInfo = _passportInfos[passportKey_];
+        SessionInfo storage _sessionInfo = _sessionInfos[sessionKey_];
+
+        require(
+            _sessionInfo.activePassport == passportKey_,
+            "StateKeeper: session not bound to this passport"
+        );
+        require(_passportInfo.activeSessionCount > 0, "StateKeeper: no active sessions");
+
+        // Mark session as revoked
+        _sessionInfo.activePassport = REVOKED;
+
+        // Remove session from passport's array
+        bytes32[] storage sessions = _passportSessions[passportKey_];
+        for (uint256 i = 0; i < sessions.length; i++) {
+            if (sessions[i] == sessionKey_) {
+                // Move last element to this position and pop
+                sessions[i] = sessions[sessions.length - 1];
+                sessions.pop();
+                _passportInfo.activeSessionCount--;
+                break;
+            }
+        }
+
+        emit BondRevoked(passportKey_, sessionKey_);
     }
 
     /**
@@ -286,24 +334,72 @@ contract StateKeeper is Initializable, AMultiOwnable, UUPSUpgradeable {
     }
 
     /**
-     * @notice Get info about the registers passport + its identity
+     * @notice Get info about the registered passport
      * @param passportKey_ the hash of a passport public key
      * @return passportInfo_ the passport info
-     * @return identityInfo_ the attached identity info
      */
     function getPassportInfo(
+        bytes32 passportKey_
+    ) external view virtual returns (PassportInfo memory passportInfo_) {
+        passportInfo_ = _passportInfos[passportKey_];
+    }
+
+    /**
+     * @notice Get all session keys bound to a passport
+     * @param passportKey_ the hash of a passport public key
+     * @return sessionKeys_ array of session keys
+     */
+    function getPassportSessions(
+        bytes32 passportKey_
+    ) external view virtual returns (bytes32[] memory sessionKeys_) {
+        return _passportSessions[passportKey_];
+    }
+
+    /**
+     * @notice Get detailed info about all sessions bound to a passport
+     * @param passportKey_ the hash of a passport public key
+     * @return sessionKeys_ array of session keys
+     * @return sessionInfos_ array of session info structs
+     */
+    function getPassportSessionsInfo(
         bytes32 passportKey_
     )
         external
         view
         virtual
-        returns (PassportInfo memory passportInfo_, IdentityInfo memory identityInfo_)
+        returns (bytes32[] memory sessionKeys_, SessionInfo[] memory sessionInfos_)
     {
-        passportInfo_ = _passportInfos[passportKey_];
+        sessionKeys_ = _passportSessions[passportKey_];
+        sessionInfos_ = new SessionInfo[](sessionKeys_.length);
 
-        if (passportInfo_.activeIdentity != REVOKED) {
-            identityInfo_ = _identityInfos[passportInfo_.activeIdentity];
+        for (uint256 i = 0; i < sessionKeys_.length; i++) {
+            sessionInfos_[i] = _sessionInfos[sessionKeys_[i]];
         }
+    }
+
+    /**
+     * @notice Get info about a specific session
+     * @param sessionKey_ the session key
+     * @return sessionInfo_ the session info
+     */
+    function getSessionInfo(
+        bytes32 sessionKey_
+    ) external view virtual returns (SessionInfo memory sessionInfo_) {
+        return _sessionInfos[sessionKey_];
+    }
+
+    /**
+     * @notice Check if a passport is fully revoked (all sessions revoked)
+     * @param passportKey_ the hash of a passport public key
+     * @return isFullyRevoked_ true if all sessions are revoked
+     */
+    function isPassportFullyRevoked(
+        bytes32 passportKey_
+    ) external view virtual returns (bool isFullyRevoked_) {
+        // Passport is fully revoked if it has no active sessions and no sessions in the array
+        return
+            _passportInfos[passportKey_].activeSessionCount == 0 &&
+            _passportSessions[passportKey_].length == 0;
     }
 
     /**

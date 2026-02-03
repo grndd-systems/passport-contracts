@@ -20,12 +20,14 @@ contract StateKeeperMock is StateKeeper {
         icaoMasterTreeMerkleRoot = newRoot_;
     }
 
-    function mockPassportData(bytes32 passportKey_, bytes32 mockIdentityKey_) external {
-        _passportInfos[passportKey_].activeIdentity = mockIdentityKey_;
+    function mockPassportData(bytes32 passportKey_, bytes32 mockSessionKey_) external {
+        _passportInfos[passportKey_].activeSessionCount = 1;
+        _passportSessions[passportKey_].push(mockSessionKey_);
     }
 
-    function mockIdentityData(bytes32 identityKey_, bytes32 mockPassportKey_) external {
-        _identityInfos[identityKey_].activePassport = mockPassportKey_;
+    function mockSessionData(bytes32 sessionKey_, bytes32 mockPassportKey_) external {
+        _sessionInfos[sessionKey_].activePassport = mockPassportKey_;
+        _sessionInfos[sessionKey_].issueTimestamp = uint64(block.timestamp);
     }
 
     function _authorizeUpgrade(address) internal pure virtual override {}

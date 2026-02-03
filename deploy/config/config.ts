@@ -21,5 +21,9 @@ export async function getConfig() {
     return await import("./rarimo-l2-testnet");
   }
 
-  throw new Error(`Config for network ${hre.network.name} is not specified`);
+  if (hre.network.name == "eden-testnet") {
+    return await import("./eden-testnet");
+  }
+
+  throw new Error(`Config for network the ${hre.network.name} is not specified`);
 }
