@@ -35,6 +35,11 @@
     "deploy-rarimo-l2-testnet": "npx hardhat migrate --network rarimo-l2-testnet --verify",
     "deploy-rarimo-dev": "npx hardhat migrate --network rarimo-dev --verify",
     "deploy-rarimo-beta": "npx hardhat migrate --network rarimo-beta --verify",
+    "deploy-eden-testnet": "npx hardhat migrate --network eden-testnet --verify",
+    "deploy-prod-localhost": "npx hardhat migrate --network localhost --verify && npx hardhat migrate --network localhost --path ./deploy/prod --verify",
+    "deploy-prod-rarimo-l2": "npx hardhat migrate --network rarimo-l2 --verify && npx hardhat migrate --network rarimo-l2 --path ./deploy/prod --verify",
+    "deploy-prod-rarimo-l2-testnet": "npx hardhat migrate --network rarimo-l2-testnet --verify && npx hardhat migrate --network rarimo-l2-testnet --path ./deploy/prod --verify",
+    "deploy-prod-eden-testnet": "npx hardhat migrate --network eden-testnet --verify && npx hardhat migrate --network eden-testnet --path ./deploy/prod --verify",
     "generate-types": "TYPECHAIN_FORCE=true npx hardhat typechain && npx hardhat gobind",
     "generate-docs": "npx hardhat markup",
     "solhint-check": "solhint --noPoster \"./contracts/**/*.sol\"",
@@ -49,6 +54,8 @@
     "@openzeppelin/contracts-upgradeable": "5.2.0",
     "@rarimo/evidence-registry": "0.1.1",
     "@solarity/solidity-lib": "3.1.0",
+    "axios": "^1.13.2",
+    "form-data": "^4.0.4",
     "poseidon-solidity": "0.0.5"
   },
   "devDependencies": {

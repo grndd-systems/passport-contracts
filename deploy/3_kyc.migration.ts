@@ -2,7 +2,7 @@ import { Deployer, Reporter } from "@solarity/hardhat-migrate";
 import { deployProxy } from "./helpers";
 
 import {
-  KYCRegistry__factory,
+  KYCRegistryMock__factory,
   StateKeeperMock__factory,
   Registration2Mock__factory,
   TD3QueryProofNoirVerifier__factory,
@@ -22,7 +22,7 @@ export = async (deployer: Deployer) => {
   });
 
   // Deploy KYC contract with TD3 verifier (passport)
-  const kyc = await deployProxy(deployer, KYCRegistry__factory, "KYCRegistry");
+  const kyc = await deployProxy(deployer, KYCRegistryMock__factory, "KYCRegistry");
 
   // Default citizenship mask
   const defaultCitizenshipMask = 110455744045184552540661350225847617777248319215128571268892831512526848n;
