@@ -21,13 +21,25 @@ contract StateKeeperMock is StateKeeper {
     }
 
     function mockPassportData(bytes32 passportKey_, bytes32 mockSessionKey_) external {
-        _passportInfos[passportKey_].activeSessionCount = 1;
+        _passportInfos[passportKey_].activeSessionCount++;
         _passportSessions[passportKey_].push(mockSessionKey_);
     }
 
     function mockSessionData(bytes32 sessionKey_, bytes32 mockPassportKey_) external {
         _sessionInfos[sessionKey_].activePassport = mockPassportKey_;
         _sessionInfos[sessionKey_].issueTimestamp = uint64(block.timestamp);
+    }
+
+    function mockClearPassport(bytes32 passportKey_, bytes32 sigHash_) external {
+        bytes32[] memory sessions = _passportSessions[passportKey_];
+        for (uint256 i = 0; i < sessions.length; i++) {
+            _sessionInfos[sessions[i]].activePassport = bytes32(0);
+            _sessionInfos[sessions[i]].issueTimestamp = 0;
+        }
+
+        delete _passportSessions[passportKey_];
+        _passportInfos[passportKey_].activeSessionCount = 0;
+        usedSignatures[sigHash_] = false;
     }
 
     function _authorizeUpgrade(address) internal pure virtual override {}

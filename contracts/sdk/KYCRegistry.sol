@@ -227,15 +227,15 @@ contract KYCRegistry is
         }
 
         // VALIDATE PASSPORT → SESSION BINDING via StateKeeper
-        StateKeeper.PassportInfo memory passportInfo = stateKeeper.getPassportInfo(passportKey);
+        StateKeeper.SessionInfo memory sessionInfo = stateKeeper.getSessionInfo(sessionKey);
 
-        // Check if passport needs registration
-        if (passportInfo.activeSessionCount == 0) {
-            // Passport not registered - register it now
-            // registrationZkPoints should be empty bytes if no registration needed
+        // Check if this specific session key needs to be bound to the passport
+        if (sessionInfo.activePassport != passportKey) {
+            // Session not bound to this passport - register it now
+            // This handles both new passports and adding new sessions to existing passports
             require(
                 registrationZkPoints.length > 0,
-                "KYC: passport not registered and no registration proof provided"
+                "KYC: session not bound and no registration proof provided"
             );
 
             registration.registerViaNoir(
@@ -246,18 +246,14 @@ contract KYCRegistry is
                 registrationZkPoints
             );
 
-            // Refresh passport info after registration
-            passportInfo = stateKeeper.getPassportInfo(passportKey);
+            // Refresh session info after registration
+            sessionInfo = stateKeeper.getSessionInfo(sessionKey);
         }
 
-        // Verify that passport now has at least one active session
-        require(passportInfo.activeSessionCount > 0, "KYC: passport registration failed");
-
-        // Verify that the provided session key is bound to this passport
-        StateKeeper.SessionInfo memory sessionInfo = stateKeeper.getSessionInfo(sessionKey);
+        // Verify that the session key is now bound to this passport
         require(
             sessionInfo.activePassport == passportKey,
-            "KYC: session not bound to this passport"
+            "KYC: session binding failed"
         );
 
         // ZK proof will verify that user owns this session
@@ -525,5 +521,5 @@ contract KYCRegistry is
             );
     }
 
-    function _authorizeUpgrade(address) internal override onlyOwner {}
+    function _authorizeUpgrade(address) internal virtual override onlyOwner {}
 }
