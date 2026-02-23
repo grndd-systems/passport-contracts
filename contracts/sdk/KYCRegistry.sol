@@ -251,10 +251,7 @@ contract KYCRegistry is
         }
 
         // Verify that the session key is now bound to this passport
-        require(
-            sessionInfo.activePassport == passportKey,
-            "KYC: session binding failed"
-        );
+        require(sessionInfo.activePassport == passportKey, "KYC: session binding failed");
 
         // ZK proof will verify that user owns this session
         // The proof verification validates session ownership through Active Authentication
