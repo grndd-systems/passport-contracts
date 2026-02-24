@@ -18,5 +18,13 @@ contract Registration2Mock is Registration2 {
         _addDependency(passportVerifiers, verifierType_, verifier_);
     }
 
+    function mockRemovePassportVerifier(bytes32 verifierType_) external {
+        _removeDependency(passportVerifiers, verifierType_);
+    }
+
+    function mockSetPassportVerifier(bytes32 verifierType_, address verifier_) external {
+        passportVerifiers[verifierType_] = verifier_;
+    }
+
     function _authorizeUpgrade(address) internal pure virtual override {}
 }

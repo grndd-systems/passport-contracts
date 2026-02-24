@@ -7,6 +7,7 @@ import {
   CECDSA512Signer,
   CECDSA512Signer__factory,
   CECDSADispatcher__factory,
+  CECDSASecp192Dispatcher__factory,
   CRSADispatcher__factory,
   CRSAPSSSigner__factory,
   CRSASigner__factory,
@@ -68,6 +69,17 @@ export const deployCECDSADispatcher = async (
   });
 
   await dispatcher.__CECDSADispatcher_init(await signer.getAddress(), keyLength, keyPrefix);
+};
+
+export const deployCECDSASecp192Dispatcher = async (deployer: Deployer) => {
+  const signer = await deployECDSA256Signer(deployer, "SECP256", "SHA1", "64");
+
+  const dispatcher = await deployer.deploy(CECDSASecp192Dispatcher__factory, {
+    name: "CECDSASecp192Dispatcher SHA1 48",
+  });
+
+  // keyByteLength=48 (P-192: 24+24 bytes), prefix=0x04
+  await dispatcher.__CECDSASecp192Dispatcher_init(await signer.getAddress(), 48, "0x04");
 };
 
 const deployRSASigner = async (deployer: Deployer, hashfunc: string, exponent: string, keyLength: string) => {
